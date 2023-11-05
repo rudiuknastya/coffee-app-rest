@@ -33,13 +33,8 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> products = productRepository.findAll(byCategoryId(categoryId).and(byDeleted()).and(byStatus()), pageable);
         List<ProductResponse> productResponses = ProductMapper.PRODUCT_MAPPER.productListToProductResponseList(products.getContent());
         for(ProductResponse productResponse: productResponses){
-            try {
-                byte[] fileContent = FileUtils.readFileToByteArray(new File(uploadPath+"\\"+productResponse.getImage()));
-                String encodedString = Base64.getEncoder().encodeToString(fileContent);
-                productResponse.setImage(encodedString);
-            } catch (IOException e) {
-                logger.warn(e.getMessage());
-            }
+            String s = "https://slj.avada-media-dev1.od.ua/Coffee_App_A_Rudiuk/uploads/";
+            productResponse.setImage(s+productResponse.getImage());
         }
         Page<ProductResponse> productResponsePage = new PageImpl<>(productResponses,pageable,products.getTotalElements());
         logger.info("getProductsForCategory() - Products for product responses were found");
@@ -51,13 +46,8 @@ public class ProductServiceImpl implements ProductService {
         logger.info("getProductDTOById() - Finding product for product dto by id "+id);
         Product product = productRepository.findProductWithAdditiveTypesById(id);
         ProductDTO productDTO = ProductMapper.productToProductDTO(product);
-        try {
-            byte[] fileContent = FileUtils.readFileToByteArray(new File(uploadPath+"\\"+productDTO.getImage()));
-            String encodedString = Base64.getEncoder().encodeToString(fileContent);
-            productDTO.setImage(encodedString);
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-        }
+        String s = "https://slj.avada-media-dev1.od.ua/Coffee_App_A_Rudiuk/uploads/";
+        productDTO.setImage(s+productDTO.getImage());
         logger.info("getProductDTOById() - Product for product dto was found");
         return productDTO;
     }
