@@ -1,8 +1,13 @@
 package project.model.locationModel;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class LocationAddressDTO {
+    @Schema(example = "1", required = true)
     private Long id;
+    @Schema(example = "вул.Васильківська 5", required = true)
     private String address;
+    @Schema(example = "Київ", required = true)
     private String city;
 
     public Long getId() {

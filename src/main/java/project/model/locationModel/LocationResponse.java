@@ -1,12 +1,19 @@
 package project.model.locationModel;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 
 public class LocationResponse {
+    @Schema(example = "1", required = true)
     private Long id;
+    @Schema(example = "Київ", required = true)
     private String city;
+    @Schema(example = "вул.Васильківська 5", required = true)
     private String address;
+    @Schema(example = "+380994657718", required = true)
     private String phoneNumber;
+    @Schema(example = "'пн-пт: 8:00-21:00\n" +
+            "сб-нд: 9:00-20:00'", required = true)
     private String workingHours;
 
     public Long getId() {
