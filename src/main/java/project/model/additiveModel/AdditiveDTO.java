@@ -1,10 +1,15 @@
 package project.model.additiveModel;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 
 public class AdditiveDTO {
+    @Schema(example = "1", required = true)
     private Long id;
+    @Schema(example = "Без сиропу", required = true)
     private String name;
+    @Schema(example = "10", required = true)
     private BigDecimal price;
 
     public Long getId() {
