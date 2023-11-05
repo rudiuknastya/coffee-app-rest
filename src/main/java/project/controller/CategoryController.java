@@ -3,6 +3,7 @@ package project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import project.model.categoryModel.CategoryResponse;
 import project.service.CategoryService;
 
 @Tag(name = "Category")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 public class CategoryController {
     private final CategoryService categoryService;

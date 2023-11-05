@@ -2,6 +2,7 @@ package project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import project.service.LocationService;
 
 import java.util.List;
 @Tag(name = "Locations")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 public class LocationController {
     private final LocationService locationService;
