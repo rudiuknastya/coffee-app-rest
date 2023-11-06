@@ -6,6 +6,7 @@ import org.mapstruct.factory.Mappers;
 import project.entity.AdditiveType;
 import project.entity.Product;
 import project.model.additiveTypeModel.AdditiveTypeDTO;
+import project.model.productModel.AwardDTO;
 import project.model.productModel.ProductDTO;
 import project.model.productModel.ProductResponse;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public interface ProductMapper {
     ProductMapper PRODUCT_MAPPER = Mappers.getMapper(ProductMapper.class);
     List<ProductResponse> productListToProductResponseList(List<Product> products);
+    List<AwardDTO> productListToAwardDTOList(List<Product> products);
     @Named("productToProductDTO")
     static ProductDTO productToProductDTO(Product product){
         if(product == null){
