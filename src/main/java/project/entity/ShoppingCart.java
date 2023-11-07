@@ -27,7 +27,7 @@ public class ShoppingCart {
         this.id = id;
     }
 
-    public BigDecimal getPrice(int i) {
+    public BigDecimal getPrice() {
         return price;
     }
 

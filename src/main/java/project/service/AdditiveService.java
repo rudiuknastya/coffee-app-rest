@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AdditiveService {
     List<AdditiveDTO> getAdditiveDTOsByAdditiveTypeId(Long additiveTypeId);
+    List<Additive> getAdditivesById(List<Long> ids);
 }

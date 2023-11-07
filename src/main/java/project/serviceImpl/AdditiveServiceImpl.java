@@ -27,4 +27,12 @@ public class AdditiveServiceImpl implements AdditiveService {
         logger.info("getAdditiveDTOsByAdditiveTypeId() - Additives for additive dto were found");
         return additiveDTOS;
     }
+
+    @Override
+    public List<Additive> getAdditivesById(List<Long> ids) {
+        logger.info("getAdditivesById() - Finding additives by ids");
+        List<Additive> additives = additiveRepository.findAllById(ids);
+        logger.info("getAdditivesById() - Additives were found");
+        return additives;
+    }
 }

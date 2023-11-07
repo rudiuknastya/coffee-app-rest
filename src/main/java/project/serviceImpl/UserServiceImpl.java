@@ -41,4 +41,20 @@ public class UserServiceImpl implements UserService {
         logger.info("getUserById() - User was found");
         return user;
     }
+
+    @Override
+    public User getUserByEmail(String email) {
+        logger.info("getUserByEmail() - Finding user by email "+email);
+        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        logger.info("getUserByEmail() - User was found");
+        return user;
+    }
+
+    @Override
+    public User getUserWithShoppingCartByEmail(String email) {
+        logger.info("getUserWithShoppingCartByEmail() - Finding user with shopping cart by email "+email);
+        User user = userRepository.findWithShoppingCartByEmail(email);
+        logger.info("getUserWithShoppingCartByEmail() - User was found");
+        return user;
+    }
 }

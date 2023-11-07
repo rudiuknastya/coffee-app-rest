@@ -1,5 +1,6 @@
 package project.serviceImpl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,5 +51,13 @@ public class ProductServiceImpl implements ProductService {
         productDTO.setImage(s+productDTO.getImage());
         logger.info("getProductDTOById() - Product for product dto was found");
         return productDTO;
+    }
+
+    @Override
+    public Product getProductById(Long id) {
+        logger.info("getProductById() - Finding product by id "+id);
+        Product product = productRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        logger.info("getProductById() - Product was found");
+        return product;
     }
 }

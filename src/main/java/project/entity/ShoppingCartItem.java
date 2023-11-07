@@ -6,45 +6,28 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-@Table(name = "order_item")
-public class OrderItem {
+@Table(name = "shopping_cart_item")
+public class ShoppingCartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     private Long quantity;
-    private Boolean deleted;
     @Column(nullable = false)
     private BigDecimal price;
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
     @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order;
+    @JoinColumn(name = "shopping_cart_id", referencedColumnName = "id")
+    private ShoppingCart shoppingCart;
     @ManyToMany
     @JoinTable(
-            name = "order_item_additive",
-            joinColumns = {@JoinColumn(name = "order_item_id")},
+            name = "shopping_cart_item_additive",
+            joinColumns = {@JoinColumn(name = "shopping_cart_item_id")},
             inverseJoinColumns = {@JoinColumn(name = "additive_id")}
     )
     private List<Additive> additives;
-
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public List<Additive> getAdditives() {
-        return additives;
-    }
-
-    public void setAdditives(List<Additive> additives) {
-        this.additives = additives;
-    }
 
     public Long getId() {
         return id;
@@ -62,6 +45,14 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
     public Product getProduct() {
         return product;
     }
@@ -70,15 +61,19 @@ public class OrderItem {
         this.product = product;
     }
 
-    public Order getOrder() {
-        return order;
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public List<Additive> getAdditives() {
+        return additives;
+    }
+
+    public void setAdditives(List<Additive> additives) {
+        this.additives = additives;
     }
 }

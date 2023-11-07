@@ -44,6 +44,16 @@ public class User implements UserDetails {
             inverseJoinColumns = { @JoinColumn(name = "product_id") }
     )
     private List<Product> products;
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private ShoppingCart shoppingCart;
+
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
+    }
 
     public List<Product> getProducts() {
         return products;
