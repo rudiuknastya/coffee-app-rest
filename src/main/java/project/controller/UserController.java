@@ -5,25 +5,33 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 import project.entity.Language;
+import project.entity.User;
+import project.model.userModel.UserProfileRequest;
 import project.model.userModel.UserResponse;
 import project.service.UserService;
-
 
 @Tag(name = "User profile")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
 public class UserController {
     private final UserService userService;
-    public UserController(UserService userService) {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UserController(UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userService = userService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
+
     @Operation(summary = "Get user profile")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -56,4 +64,26 @@ public class UserController {
         }
         return languageNames;
     }
+    @Operation(summary = "Update profile")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Failed validation")})
+    @PutMapping("/profile")
+    ResponseEntity<?> updateUserProfile(@Valid @RequestBody UserProfileRequest userProfileRequest){
+        User user = userService.getUserById(userProfileRequest.getId());
+        user.setName(userProfileRequest.getName());
+        user.setPhoneNumber(userProfileRequest.getPhoneNumber());
+        user.setEmail(userProfileRequest.getEmail());
+        if(userProfileRequest.getBirthDate() !=null){
+            user.setBirthDate(userProfileRequest.getBirthDate());
+        }
+        user.setLanguage(Language.fromString(userProfileRequest.getLanguage()));
+        if(!userProfileRequest.getOldPassword().equals("") && !userProfileRequest.getNewPassword().equals("") && !userProfileRequest.getConfirmNewPassword().equals("")){
+            user.setPassword(bCryptPasswordEncoder.encode(userProfileRequest.getNewPassword()));
+        }
+        userService.saveUser(user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

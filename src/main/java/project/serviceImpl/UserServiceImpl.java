@@ -33,4 +33,12 @@ public class UserServiceImpl implements UserService {
         logger.info("getUserResponseByEmail() - User for user response was found");
         return userResponse;
     }
+
+    @Override
+    public User getUserById(Long id) {
+        logger.info("getUserById() - Finding user by id "+id);
+        User user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        logger.info("getUserById() - User was found");
+        return user;
+    }
 }
