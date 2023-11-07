@@ -1,5 +1,6 @@
 package project.serviceImpl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,15 @@ public class LocationServiceImpl implements LocationService {
         Page<Location> locations = locationRepository.findAll(byDeleted(),pageable);
         List<LocationAddressDTO> locationAddressDTOS = LocationMapper.LOCATION_MAPPER.locationListToLocationAddressDTOList(locations.getContent());
         Page<LocationAddressDTO> locationAddressDTOPage = new PageImpl<>(locationAddressDTOS,pageable,locations.getTotalElements());
+        logger.info("getLocationAddresses() - Locations for location address dto were found");
         return locationAddressDTOPage;
+    }
+
+    @Override
+    public Location getLocationById(Long id) {
+        logger.info("getLocationById() - Finding location by id "+id);
+        Location location = locationRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        logger.info("getLocationById() - Location was found");
+        return location;
     }
 }
