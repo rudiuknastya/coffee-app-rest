@@ -136,7 +136,7 @@ public class ShoppingCartController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        shoppingCartItemService.deleteUserShoppingCartItems(email);
+        shoppingCartItemService.deleteShoppingCartItemsByUserEmail(email);
         shoppingCartService.deleteShoppingCartByUserEmail(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }

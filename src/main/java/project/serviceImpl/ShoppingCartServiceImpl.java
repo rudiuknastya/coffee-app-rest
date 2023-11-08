@@ -42,4 +42,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         shoppingCartRepository.delete(shoppingCart);
         logger.info("deleteShoppingCartByUserEmail() - Shopping cart was deleted");
     }
+
+    @Override
+    public void deleteShoppingCart(ShoppingCart shoppingCart) {
+        logger.info("deleteShoppingCart() - Deleting shopping cart");
+        shoppingCartRepository.delete(shoppingCart);
+        logger.info("deleteShoppingCart() - Shopping cart was deleted");
+    }
 }

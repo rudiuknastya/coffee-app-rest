@@ -1,85 +1,47 @@
-package project.entity;
+package project.model.deliveryModel;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
+import project.entity.Payment;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "delivery")
-public class Delivery {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false)
+public class DeliveryRequest {
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String name;
-    @Column(name = "phone_number", columnDefinition="VARCHAR(20) NOT NULL UNIQUE")
+    @NotEmpty(message = "Поле не може бути порожнім")
+    @Size(min=4, max=15, message = "Розмір поля має бути не менше 4 та не більше 15 символів")
+    @Pattern(regexp = "^\\+?[1-9][0-9]{4,15}$", message = "Невірний формат номеру")
     private String phoneNumber;
-    @Column(nullable = false)
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String city;
-    @Column(nullable = false)
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String building;
-    @Column(nullable = false)
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String street;
-    @Column(nullable = false)
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String entrance;
+    @NotNull(message = "Поле не може бути порожнім")
     private Long apartment;
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Поле не може бути порожнім")
     private Payment payment;
-    @Column(name = "remainder_from")
     private Long remainderFrom;
-    @Column(name = "delivery_date", columnDefinition="DATE")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate deliveryDate;
-    @Column(name="delivery_time", columnDefinition="TIME NOT NULl")
-    @DateTimeFormat(pattern = "hh:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalTime deliveryTime;
-    private Boolean deleted;
-    @OneToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order;
+    private boolean callBack;
 
-    public Delivery() {
+    public boolean getCallBack() {
+        return callBack;
     }
 
-    public Delivery(String name, String phoneNumber, String city, String building, String street, String entrance, Long apartment, Payment payment, Long remainderFrom, LocalDate deliveryDate, LocalTime deliveryTime) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.city = city;
-        this.building = building;
-        this.street = street;
-        this.entrance = entrance;
-        this.apartment = apartment;
-        this.payment = payment;
-        this.remainderFrom = remainderFrom;
-        this.deliveryDate = deliveryDate;
-        this.deliveryTime = deliveryTime;
-    }
-
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public String getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public void setCallBack(boolean callBack) {
+        this.callBack = callBack;
     }
 
     public String getName() {
@@ -104,6 +66,14 @@ public class Delivery {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getBuilding() {
+        return building;
+    }
+
+    public void setBuilding(String building) {
+        this.building = building;
     }
 
     public String getStreet() {
@@ -161,13 +131,4 @@ public class Delivery {
     public void setDeliveryTime(LocalTime deliveryTime) {
         this.deliveryTime = deliveryTime;
     }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 }
-
