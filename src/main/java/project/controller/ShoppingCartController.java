@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import project.entity.*;
 import project.model.shoppingCartItemModel.ShoppingCartItemRequest;
+import project.model.shoppingCartModel.ShoppingCartPriceResponse;
+import project.model.shoppingCartModel.ShoppingCartResponse;
 import project.service.*;
 
 import java.math.BigDecimal;
@@ -85,4 +87,30 @@ public class ShoppingCartController {
         shoppingCartItemService.saveShoppingCartItem(shoppingCartItem);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @Operation(summary = "Get shopping cart price")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @GetMapping("/shoppingCart/price")
+    ResponseEntity<ShoppingCartPriceResponse> getShoppingCartPrice(){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String email = userDetails.getUsername();
+        ShoppingCartPriceResponse shoppingCart = shoppingCartService.getShoppingCartPrice(email);
+        return new ResponseEntity<>(shoppingCart,HttpStatus.OK);
+    }
+    @Operation(summary = "Get shopping cart")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @GetMapping("/shoppingCart")
+    ResponseEntity<ShoppingCartResponse> getShoppingCart(){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String email = userDetails.getUsername();
+        return new ResponseEntity<>(shoppingCartItemService.getShoppingCartResponse(email), HttpStatus.OK);
+    }
+
 }

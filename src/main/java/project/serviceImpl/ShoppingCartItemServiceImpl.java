@@ -4,8 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import project.entity.ShoppingCartItem;
+import project.mapper.ShoppingCartMapper;
+import project.model.shoppingCartModel.ShoppingCartResponse;
 import project.repository.ShoppingCartItemRepository;
 import project.service.ShoppingCartItemService;
+
+import java.util.List;
+
 @Service
 public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
     private final ShoppingCartItemRepository shoppingCartItemRepository;
@@ -20,5 +25,13 @@ public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
         ShoppingCartItem shoppingCartItem1 = shoppingCartItemRepository.save(shoppingCartItem);
         logger.info("saveShoppingCartItem() - Shopping cart item was saved");
         return shoppingCartItem1;
+    }
+    @Override
+    public ShoppingCartResponse getShoppingCartResponse(String email) {
+        logger.info("getShoppingCartResponse() - Finding shopping cart items for shopping cart response");
+        List<ShoppingCartItem> shoppingCartItems = shoppingCartItemRepository.findShoppingCartItemsWithAdditives(email);
+        ShoppingCartResponse shoppingCartResponse = ShoppingCartMapper.shoppingCartItemsToShoppingCartResponse(shoppingCartItems);
+        logger.info("getShoppingCartResponse() - Shopping cart items were found");
+        return shoppingCartResponse;
     }
 }
