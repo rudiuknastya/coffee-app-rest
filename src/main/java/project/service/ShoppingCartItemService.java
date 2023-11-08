@@ -9,4 +9,5 @@ public interface ShoppingCartItemService {
     ShoppingCartItem getShoppingCartItemWithAdditivesById(Long id);
     ShoppingCartItem getShoppingCartItemById(Long id);
     void deleteShoppingCartItem(ShoppingCartItem shoppingCartItem);
+    void deleteUserShoppingCartItems(String email);
 }

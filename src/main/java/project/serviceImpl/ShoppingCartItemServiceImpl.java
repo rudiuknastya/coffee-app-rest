@@ -58,4 +58,12 @@ public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
         logger.info("getShoppingCartItemById() - Shopping cart item was found");
         return shoppingCartItem;
     }
+
+    @Override
+    public void deleteUserShoppingCartItems(String email) {
+        logger.info("deleteUserShoppingCartItems() - Deleting shopping cart items by email "+email);
+        List<ShoppingCartItem> shoppingCartItems = shoppingCartItemRepository.findShoppingCartItemsWithAdditives(email);
+        shoppingCartItemRepository.deleteAll(shoppingCartItems);
+        logger.info("deleteUserShoppingCartItems() - Shopping cart items were deleted");
+    }
 }

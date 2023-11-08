@@ -126,16 +126,20 @@ public class ShoppingCartController {
         shoppingCartItemService.deleteShoppingCartItem(shoppingCartItem);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-//    @Operation(summary = "Delete shopping cart")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "OK"),
-//            @ApiResponse(responseCode = "401", description = "User unauthorized"),
-//            @ApiResponse(responseCode = "400", description = "Bad request")})
-//    @DeleteMapping("/shoppingCart/delete")
-//    ResponseEntity<?> deleteShoppingCart(){
-//
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    @Operation(summary = "Delete shopping cart")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @DeleteMapping("/shoppingCart/delete")
+    ResponseEntity<?> deleteShoppingCart(){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String email = userDetails.getUsername();
+        shoppingCartItemService.deleteUserShoppingCartItems(email);
+        shoppingCartService.deleteShoppingCartByUserEmail(email);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     @Operation(summary = "Regulate quantity of shopping cart items")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OK"),

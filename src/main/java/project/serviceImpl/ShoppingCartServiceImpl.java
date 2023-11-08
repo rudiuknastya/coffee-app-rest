@@ -35,4 +35,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartPriceResponse;
     }
 
+    @Override
+    public void deleteShoppingCartByUserEmail(String email) {
+        logger.info("deleteShoppingCartByUserEmail() - Deleting shopping cart by user email "+email);
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUserEmail(email);
+        shoppingCartRepository.delete(shoppingCart);
+        logger.info("deleteShoppingCartByUserEmail() - Shopping cart was deleted");
+    }
 }
