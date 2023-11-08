@@ -1,5 +1,6 @@
 package project.serviceImpl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
     }
 
     @Override
-    public ShoppingCartItem getShoppingCartItemById(Long id) {
+    public ShoppingCartItem getShoppingCartItemWithAdditivesById(Long id) {
         logger.info("getShoppingCartItemById() - Finding shopping cart item by id "+id);
         ShoppingCartItem shoppingCartItem = shoppingCartItemRepository.findShoppingCartItemWithAdditivesById(id);
         logger.info("getShoppingCartItemById() - Shopping cart item was found");
@@ -48,5 +49,13 @@ public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
         logger.info("deleteShoppingCartItem() - Deleting shopping cart item");
         shoppingCartItemRepository.delete(shoppingCartItem);
         logger.info("deleteShoppingCartItem() - Shopping cart item was deleted");
+    }
+
+    @Override
+    public ShoppingCartItem getShoppingCartItemById(Long id) {
+        logger.info("getShoppingCartItemById() - Finding shopping cart item by id "+id);
+        ShoppingCartItem shoppingCartItem = shoppingCartItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        logger.info("getShoppingCartItemById() - Shopping cart item was found");
+        return shoppingCartItem;
     }
 }

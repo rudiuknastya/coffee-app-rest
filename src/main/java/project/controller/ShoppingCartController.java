@@ -9,16 +9,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import project.entity.*;
+import project.model.shoppingCartItemModel.ShoppingCartItemQuantityResponse;
 import project.model.shoppingCartItemModel.ShoppingCartItemRequest;
 import project.model.shoppingCartModel.ShoppingCartPriceResponse;
 import project.model.shoppingCartModel.ShoppingCartResponse;
 import project.service.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "Shopping cart")
@@ -122,9 +121,43 @@ public class ShoppingCartController {
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @DeleteMapping("/shoppingCart/delete/{shoppingCartItemId}")
     ResponseEntity<?> deleteShoppingCartItem(@PathVariable("shoppingCartItemId")Long id){
-        ShoppingCartItem shoppingCartItem = shoppingCartItemService.getShoppingCartItemById(id);
+        ShoppingCartItem shoppingCartItem = shoppingCartItemService.getShoppingCartItemWithAdditivesById(id);
+        shoppingCartItem.getShoppingCart().setPrice(shoppingCartItem.getShoppingCart().getPrice().subtract(shoppingCartItem.getPrice()) );
         shoppingCartItemService.deleteShoppingCartItem(shoppingCartItem);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+//    @Operation(summary = "Delete shopping cart")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "OK"),
+//            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+//            @ApiResponse(responseCode = "400", description = "Bad request")})
+//    @DeleteMapping("/shoppingCart/delete")
+//    ResponseEntity<?> deleteShoppingCart(){
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+    @Operation(summary = "Regulate quantity of shopping cart items")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "401", description = "User unauthorized"),
+        @ApiResponse(responseCode = "400", description = "Bad request")})
+    @PutMapping("/shoppingCart/edit/{shoppingCartItemId}")
+    ResponseEntity<ShoppingCartItemQuantityResponse> updateShoppingCartItemQuantity(@PathVariable("shoppingCartItemId")Long id, @RequestParam Long quantity){
+        ShoppingCartItem shoppingCartItem = shoppingCartItemService.getShoppingCartItemById(id);
+        BigDecimal p = shoppingCartItem.getPrice();
+        p = p.divide(BigDecimal.valueOf(shoppingCartItem.getQuantity()));
+        p = p.multiply(BigDecimal.valueOf(quantity));
+
+        BigDecimal op = shoppingCartItem.getShoppingCart().getPrice();
+        op = op.subtract(shoppingCartItem.getPrice());
+        shoppingCartItem.setPrice(p);
+        op = op.add(shoppingCartItem.getPrice());
+        shoppingCartItem.getShoppingCart().setPrice(op);
+        shoppingCartItem.setQuantity(quantity);
+        shoppingCartItemService.saveShoppingCartItem(shoppingCartItem);
+        ShoppingCartItemQuantityResponse response = new ShoppingCartItemQuantityResponse(id,quantity,shoppingCartItem.getPrice(),shoppingCartItem.getShoppingCart().getPrice());
+        return new ResponseEntity<>(response,HttpStatus.OK);
+
     }
 
 }
