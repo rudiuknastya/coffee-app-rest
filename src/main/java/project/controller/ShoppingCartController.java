@@ -48,14 +48,17 @@ public class ShoppingCartController {
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @PostMapping("/shoppingCart/create")
     ResponseEntity<?> createShoppingCart(@RequestParam Long locationId){
-        ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setPrice(BigDecimal.valueOf(0));
-        shoppingCart.setLocation(locationService.getLocationById(locationId));
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        shoppingCart.setUser(userService.getUserByEmail(email));
-        shoppingCartService.saveShoppingCart(shoppingCart);
+        User user = userService.getUserWithShoppingCartByEmail(email);
+        if(user.getShoppingCart() == null) {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            shoppingCart.setPrice(BigDecimal.valueOf(0));
+            shoppingCart.setLocation(locationService.getLocationById(locationId));
+            shoppingCart.setUser(user);
+            shoppingCartService.saveShoppingCart(shoppingCart);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @Operation(summary = "Add product to shopping cart")
@@ -111,6 +114,17 @@ public class ShoppingCartController {
                 .getPrincipal();
         String email = userDetails.getUsername();
         return new ResponseEntity<>(shoppingCartItemService.getShoppingCartResponse(email), HttpStatus.OK);
+    }
+    @Operation(summary = "Delete shopping cart item by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @DeleteMapping("/shoppingCart/delete/{shoppingCartItemId}")
+    ResponseEntity<?> deleteShoppingCartItem(@PathVariable("shoppingCartItemId")Long id){
+        ShoppingCartItem shoppingCartItem = shoppingCartItemService.getShoppingCartItemById(id);
+        shoppingCartItemService.deleteShoppingCartItem(shoppingCartItem);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

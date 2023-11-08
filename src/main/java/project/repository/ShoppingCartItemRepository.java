@@ -10,4 +10,6 @@ import java.util.List;
 public interface ShoppingCartItemRepository extends JpaRepository<ShoppingCartItem, Long> {
     @Query(value = "SELECT s FROM ShoppingCartItem s LEFT JOIN FETCH s.additives LEFT JOIN FETCH s.shoppingCart sc WHERE sc.user.email = :email ")
     List<ShoppingCartItem> findShoppingCartItemsWithAdditives(@Param("email")String email);
+    @Query(value = "SELECT s FROM ShoppingCartItem s LEFT JOIN FETCH s.additives WHERE s.id = :id")
+    ShoppingCartItem findShoppingCartItemWithAdditivesById(@Param("id")Long id);
 }
