@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import project.entity.*;
 import project.model.PageableDTO;
 import project.model.deliveryModel.DeliveryRequest;
+import project.model.orderItemModel.OrderItemResponse;
 import project.model.orderModel.OrderResponse;
 import project.service.*;
 
@@ -162,5 +163,38 @@ public class OrderController {
                 .getPrincipal();
         String email = userDetails.getUsername();
         return orderService.getUserOrders(email,pageable);
+    }
+    @Operation(summary = "Get order items for order in order history")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @GetMapping("/orders/history/{orderId}")
+    Page<OrderItemResponse> getOrderItemsForOrderHistory(@PathVariable("orderId")Long id, PageableDTO pageableDTO){
+        int page = 0;
+        int size = 5;
+        if(pageableDTO.getPage() >= 0){
+            page = pageableDTO.getPage();
+        }
+        if(pageableDTO.getSize() > 0){
+            size = pageableDTO.getSize();
+        }
+        Pageable pageable;
+        if(pageableDTO.getSortField() != null && !pageableDTO.getSortField().equals("")){
+            Sort sort = Sort.by("id").ascending();
+            if(pageableDTO.getSortDirection() != null && !pageableDTO.getSortDirection().equals("")){
+                if(pageableDTO.getSortDirection().equals("ASC")){
+                    sort = Sort.by(pageableDTO.getSortField()).ascending();
+                }
+                if(pageableDTO.getSortDirection().equals("DESC")){
+                    sort = Sort.by(pageableDTO.getSortField()).descending();
+                }
+
+            }
+            pageable = PageRequest.of(page,size,sort);
+        } else {
+            pageable = PageRequest.of(page,size,Sort.by("id").ascending());
+        }
+        return orderItemService.getOrderItemsByOrderId(id,pageable);
     }
 }

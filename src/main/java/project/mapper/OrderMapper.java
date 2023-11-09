@@ -2,6 +2,7 @@ package project.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import project.entity.Order;
 import project.model.orderModel.OrderResponse;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
+    @Named("orderListToOrderResponseList")
     static List<OrderResponse> orderListToOrderResponseList(List<Order> orders){
         if(orders ==  null){
             return null;
