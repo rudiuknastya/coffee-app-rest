@@ -6,16 +6,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import project.entity.*;
+import project.model.PageableDTO;
 import project.model.deliveryModel.DeliveryRequest;
+import project.model.orderModel.OrderResponse;
 import project.service.*;
 
 import java.time.LocalDate;
@@ -45,7 +48,7 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "400", description = "Failed validation")})
-    @PostMapping("/order/new/withDelivery")
+    @PostMapping("/orders/new/withDelivery")
     ResponseEntity<?> createOrderWithDelivery(@Valid @RequestBody DeliveryRequest deliveryRequest){
         Delivery delivery = new Delivery(
                 deliveryRequest.getName(), deliveryRequest.getPhoneNumber(),
@@ -94,7 +97,7 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
-    @PostMapping("/order/new")
+    @PostMapping("/orders/new")
     ResponseEntity<?> createOrder(){
         Order order = new Order();
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -123,5 +126,41 @@ public class OrderController {
         shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
         shoppingCartService.deleteShoppingCart(shoppingCart);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @Operation(summary = "Get orders for user order history")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @GetMapping("/orders/history")
+    Page<OrderResponse> getOrdersForOrderHistory(PageableDTO pageableDTO){
+        int page = 0;
+        int size = 5;
+        if(pageableDTO.getPage() >= 0){
+            page = pageableDTO.getPage();
+        }
+        if(pageableDTO.getSize() > 0){
+            size = pageableDTO.getSize();
+        }
+        Pageable pageable;
+        if(pageableDTO.getSortField() != null && !pageableDTO.getSortField().equals("")){
+            Sort sort = Sort.by("id").ascending();
+            if(pageableDTO.getSortDirection() != null && !pageableDTO.getSortDirection().equals("")){
+                if(pageableDTO.getSortDirection().equals("ASC")){
+                    sort = Sort.by(pageableDTO.getSortField()).ascending();
+                }
+                if(pageableDTO.getSortDirection().equals("DESC")){
+                    sort = Sort.by(pageableDTO.getSortField()).descending();
+                }
+
+            }
+            pageable = PageRequest.of(page,size,sort);
+        } else {
+            pageable = PageRequest.of(page,size,Sort.by("id").ascending());
+        }
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String email = userDetails.getUsername();
+        return orderService.getUserOrders(email,pageable);
     }
 }

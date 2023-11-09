@@ -46,6 +46,16 @@ public class User implements UserDetails {
     private List<Product> products;
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private ShoppingCart shoppingCart;
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
 
     public ShoppingCart getShoppingCart() {
         return shoppingCart;

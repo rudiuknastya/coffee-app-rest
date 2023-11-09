@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import project.model.PageableDTO;
 import project.model.locationModel.LocationAddressDTO;
@@ -60,7 +61,7 @@ public class LocationController {
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/locationsList")
-    Page<LocationAddressDTO> getLocationAddresses(PageableDTO pageableDTO){
+    Page<LocationAddressDTO> getLocationAddresses(@RequestBody PageableDTO pageableDTO){
         int page = 0;
         int size = 5;
         if(pageableDTO.getPage() >= 0){
