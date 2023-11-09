@@ -88,4 +88,40 @@ public class OrderController {
         shoppingCartService.deleteShoppingCart(shoppingCart);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Operation(summary = "Create order without delivery")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @PostMapping("/order/new")
+    ResponseEntity<?> createOrder(){
+        Order order = new Order();
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String email = userDetails.getUsername();
+        List<ShoppingCartItem> shoppingCartItems = shoppingCartItemService.getShoppingCartItemsWithAdditives(email);
+        ShoppingCart shoppingCart = shoppingCartItems.get(0).getShoppingCart();
+        order.setPrice(shoppingCart.getPrice());
+        order.setOrderDate(LocalDate.now());
+        order.setOrderTime(LocalTime.now());
+        order.setLocation(shoppingCart.getLocation());
+        order.setUser(shoppingCart.getUser());
+        order.setStatus(OrderStatus.ORDERED);
+        Order savedOrder = orderService.saveOrder(order);
+        for(ShoppingCartItem shoppingCartItem: shoppingCartItems){
+            OrderItem orderItem = new OrderItem();
+            List<Additive> additives = new ArrayList<>(shoppingCartItem.getAdditives());
+            orderItem.setAdditives(additives);
+            orderItem.setProduct(shoppingCartItem.getProduct());
+            orderItem.setQuantity(shoppingCartItem.getQuantity());
+            orderItem.setDeleted(false);
+            orderItem.setOrder(savedOrder);
+            orderItem.setPrice(shoppingCartItem.getPrice());
+            orderItemService.saveOrderItem(orderItem);
+        }
+        shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
+        shoppingCartService.deleteShoppingCart(shoppingCart);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

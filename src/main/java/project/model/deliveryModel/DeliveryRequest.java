@@ -1,5 +1,6 @@
 package project.model.deliveryModel;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -11,28 +12,37 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class DeliveryRequest {
+    @Schema(example = "Софія", required = true)
     @NotEmpty(message = "Поле не може бути порожнім")
     private String name;
+    @Schema(example = "+380991452341", required = true)
     @NotEmpty(message = "Поле не може бути порожнім")
     @Size(min=4, max=15, message = "Розмір поля має бути не менше 4 та не більше 15 символів")
     @Pattern(regexp = "^\\+?[1-9][0-9]{4,15}$", message = "Невірний формат номеру")
     private String phoneNumber;
+    @Schema(example = "Київ", required = true)
     @NotEmpty(message = "Поле не може бути порожнім")
     private String city;
+    @Schema(example = "12б", required = true)
     @NotEmpty(message = "Поле не може бути порожнім")
     private String building;
+    @Schema(example = "Вулиця", required = true)
     @NotEmpty(message = "Поле не може бути порожнім")
     private String street;
+    @Schema(example = "5", required = true)
     @NotEmpty(message = "Поле не може бути порожнім")
     private String entrance;
+    @Schema(example = "20", required = true)
     @NotNull(message = "Поле не може бути порожнім")
     private Long apartment;
     @NotNull(message = "Поле не може бути порожнім")
     private Payment payment;
     private Long remainderFrom;
+    @Schema(example = "2023-09-13", required = true)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate deliveryDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Schema(example = "19:00", required = true)
+    @DateTimeFormat(pattern = "hh:mm:ss")
     private LocalTime deliveryTime;
     private boolean callBack;
 
