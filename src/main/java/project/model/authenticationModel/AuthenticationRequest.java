@@ -1,7 +1,11 @@
 package project.model.authenticationModel;
 
+import jakarta.validation.constraints.NotEmpty;
+
 public class AuthenticationRequest {
+    @NotEmpty
     private String email;
+    @NotEmpty
     private String password;
 
     public String getEmail() {

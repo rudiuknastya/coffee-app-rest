@@ -61,7 +61,7 @@ public class LocationController {
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/locationsList")
-    Page<LocationAddressDTO> getLocationAddresses(@RequestBody PageableDTO pageableDTO){
+    Page<LocationAddressDTO> getLocationAddresses(PageableDTO pageableDTO){
         int page = 0;
         int size = 5;
         if(pageableDTO.getPage() >= 0){

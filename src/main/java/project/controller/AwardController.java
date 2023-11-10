@@ -64,4 +64,5 @@ public class AwardController {
         String email = userDetails.getUsername();
         return awardService.getAwards(email,pageable);
     }
+
 }

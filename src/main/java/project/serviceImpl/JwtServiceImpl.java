@@ -18,22 +18,27 @@ import java.util.function.Function;
 @Service
 public class JwtServiceImpl implements JwtService {
     private static final String SECRET_KEY = "73834a6390ff5bd94c555fd5a0bee07fd0d83918d82fe6cdd99ecad67d68e0cf";
+    private long accessExpiration = 86400000;//120000;
+    private long refreshExpiration = 604800000;
     @Override
     public String extractUserEmail(String jwt) {
         return extractClaim(jwt, Claims::getSubject);
     }
 
     @Override
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(),userDetails);
+    public String generateAccessToken(UserDetails userDetails){
+        return buildToken(new HashMap<>(),userDetails,accessExpiration);
     }
-
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails){
+    @Override
+    public String generateRefreshToken(UserDetails userDetails){
+        return buildToken(new HashMap<>(),userDetails,refreshExpiration);
+    }
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails,long expiration ){
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+ 1000*3600*24))
+                .setExpiration(new Date(System.currentTimeMillis()+ expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
