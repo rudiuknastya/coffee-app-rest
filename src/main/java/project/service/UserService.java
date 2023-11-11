@@ -9,5 +9,6 @@ public interface UserService {
     User getUserById(Long id);
     User getUserByEmail(String email);
     User getUserWithShoppingCartByEmail(String email);
+    User getUserWithPasswordResetTokenByEmail(String email);
 
 }

@@ -29,13 +29,12 @@ public class SecurityConfig {
         http
                 .csrf((c)-> c.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/swagger-ui/**","/v3/api-docs/**", "/register", "/login","/refreshToken").permitAll()
+                        .requestMatchers("/swagger-ui/**","/v3/api-docs/**", "/register", "/login","/refreshToken","/forgotPassword","/changePassword").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sm)->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
 
         return http.build();
     }

@@ -57,4 +57,12 @@ public class UserServiceImpl implements UserService {
         logger.info("getUserWithShoppingCartByEmail() - User was found");
         return user;
     }
+
+    @Override
+    public User getUserWithPasswordResetTokenByEmail(String email) {
+        logger.info("getUserWithPasswordResetTokenByEmail() - Finding user with password reset token by email "+email);
+        User user = userRepository.findWithPasswordResetTokenByEmail(email);
+        logger.info("getUserWithPasswordResetTokenByEmail() - User was found");
+        return user;
+    }
 }

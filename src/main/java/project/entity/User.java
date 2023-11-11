@@ -48,6 +48,16 @@ public class User implements UserDetails {
     private ShoppingCart shoppingCart;
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private PasswordResetToken passwordResetToken;
+
+    public PasswordResetToken getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public void setPasswordResetToken(PasswordResetToken passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
 
     public List<Order> getOrders() {
         return orders;
