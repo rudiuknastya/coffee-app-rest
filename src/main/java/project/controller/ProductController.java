@@ -55,12 +55,10 @@ public class ProductController {
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/product/{id}")
     ResponseEntity<ProductDTO> getProduct(@PathVariable("id")Long id){
-        ProductDTO productDTO = productService.getProductDTOById(id);
-        if(productDTO != null){
-            return new ResponseEntity<>(productDTO, HttpStatus.OK);
-        } else {
+        if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(productService.getProductDTOById(id), HttpStatus.OK);
     }
 
 }

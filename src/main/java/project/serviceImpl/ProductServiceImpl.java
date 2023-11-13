@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO getProductDTOById(Long id) {
         logger.info("getProductDTOById() - Finding product for product dto by id "+id);
-        Product product = productRepository.findProductWithAdditiveTypesById(id);
+        Product product = productRepository.findProductWithAdditiveTypesById(id).orElseThrow(EntityNotFoundException::new);
         ProductDTO productDTO = ProductMapper.productToProductDTO(product);
         final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         productDTO.setImage(baseUrl+"/uploads/"+productDTO.getImage());
