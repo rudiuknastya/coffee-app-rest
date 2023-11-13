@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserWithPasswordResetTokenByEmail(String email) {
         logger.info("getUserWithPasswordResetTokenByEmail() - Finding user with password reset token by email "+email);
-        User user = userRepository.findWithPasswordResetTokenByEmail(email);
+        User user = userRepository.findWithPasswordResetTokenByEmail(email).orElseThrow(EntityNotFoundException::new);
         logger.info("getUserWithPasswordResetTokenByEmail() - User was found");
         return user;
     }

@@ -3,6 +3,7 @@ package project.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -25,7 +26,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
+@Tag(name = "Security")
 @RestController
 public class SecurityController {
     private final AuthenticationService authenticationService;
@@ -44,11 +45,11 @@ public class SecurityController {
 
     @Operation(summary = "Register user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "User created"),
             @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/register")
     ResponseEntity<AuthenticationResponse> registerUser(@Valid @RequestBody UserRequest userRequest){
-        return ResponseEntity.ok(authenticationService.register(userRequest));
+        return new ResponseEntity<>(authenticationService.register(userRequest),HttpStatus.CREATED);
     }
     @Operation(summary = "Authenticate user")
     @ApiResponses(value = {
@@ -58,7 +59,10 @@ public class SecurityController {
     ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody AuthenticationRequest authenticationRequest){
         return ResponseEntity.ok(authenticationService.authenticate(authenticationRequest));
     }
-
+    @Operation(summary = "Get new access token by refresh token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/refreshToken")
     ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshToken refreshToken){
         AuthenticationResponse authenticationResponse = authenticationService.refreshToken(refreshToken);
@@ -71,6 +75,7 @@ public class SecurityController {
     @Operation(summary = "Sending email to user to change password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "User with such email not found"),
             @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/forgotPassword")
     ResponseEntity<?> forgotPassword(@Valid @RequestBody EmailRequest emailRequest){

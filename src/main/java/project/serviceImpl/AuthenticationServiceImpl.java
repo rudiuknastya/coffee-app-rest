@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.entity.*;
+import project.mapper.UserMapper;
 import project.model.authenticationModel.AuthenticationRequest;
 import project.model.authenticationModel.AuthenticationResponse;
 import project.model.authenticationModel.RefreshToken;
@@ -46,15 +47,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse register(UserRequest userRequest) {
-        User user = new User();
-        user.setName(userRequest.getName());
-        user.setPhoneNumber(userRequest.getPhoneNumber());
-        user.setEmail(userRequest.getEmail());
+        User user = UserMapper.userRequestToUser(userRequest);
         user.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
-        user.setRole(Role.USER);
-        user.setStatus(UserStatus.NEW);
-        user.setLanguage(Language.UKR);
-        user.setRegistrationDate(LocalDate.now());
         List<Product> products = productRepository.findProductsForAward();
         List<Product> userProducts = new ArrayList<>(1);
         userProducts.add(products.get(0));

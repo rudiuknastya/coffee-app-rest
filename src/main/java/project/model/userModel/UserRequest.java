@@ -19,7 +19,7 @@ public class UserRequest {
     @Email(regexp = "[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\\.[a-z]{2,3}", message = "Невірний формат email")
     @FieldEmailUnique
     private String email;
-    @Size(min=8, max=10, message = "Розмір паролю має бути не менше 8 та не більше 10 символів")
+    @Size(min=8, message = "Розмір паролю має бути не менше 8 символів")
     private String password;
 
     public String getName() {

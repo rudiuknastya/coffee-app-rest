@@ -22,7 +22,7 @@ import project.model.locationModel.LocationResponse;
 import project.service.LocationService;
 
 import java.util.List;
-@Tag(name = "Locations")
+@Tag(name = "Location")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
 public class LocationController {
