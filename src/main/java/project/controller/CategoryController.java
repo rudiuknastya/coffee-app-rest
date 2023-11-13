@@ -31,30 +31,15 @@ public class CategoryController {
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/categories")
     Page<CategoryResponse> getCategories(PageableDTO pageableDTO){
-        int page = 0;
-        int size = 5;
-        if(pageableDTO.getPage() >= 0){
-            page = pageableDTO.getPage();
-        }
-        if(pageableDTO.getSize() > 0){
-            size = pageableDTO.getSize();
-        }
         Pageable pageable;
-        if(pageableDTO.getSortField() != null){
-            Sort sort = Sort.by("id").ascending();
-            if(pageableDTO.getSortDirection() != null){
-                if(pageableDTO.getSortDirection().equals("ASC")){
-                    sort = Sort.by(pageableDTO.getSortField()).ascending();
-                }
-                if(pageableDTO.getSortDirection().equals("DESC")){
-                    sort = Sort.by(pageableDTO.getSortField()).descending();
-                }
-
-            }
-            pageable = PageRequest.of(page,size,sort);
-        } else {
-            pageable = PageRequest.of(page,size,Sort.by("id").ascending());
+        Sort sort;
+        if(pageableDTO.getSortDirection().equals("DESC")){
+            sort = Sort.by(pageableDTO.getSortField()).descending();
         }
+        else{
+            sort = Sort.by(pageableDTO.getSortField()).ascending();
+        }
+        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         return categoryService.getCategoryResponses(pageable);
     }
 }
