@@ -44,9 +44,13 @@ public class ShoppingCartController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Product not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @PostMapping("/shoppingCart/add/{productId}")
     ResponseEntity<?> createShoppingCartItem(@PathVariable Long productId, @RequestBody ShoppingCartItemRequest shoppingCartItemRequest){
+        if(productId < 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         BigDecimal price = new BigDecimal(0);
         ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
         shoppingCartItem.setQuantity(shoppingCartItemRequest.getQuantity());
@@ -98,9 +102,13 @@ public class ShoppingCartController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Shopping cart item not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @DeleteMapping("/shoppingCart/delete/{shoppingCartItemId}")
     ResponseEntity<?> deleteShoppingCartItem(@PathVariable("shoppingCartItemId")Long id){
+        if(id < 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         ShoppingCartItem shoppingCartItem = shoppingCartItemService.getShoppingCartItemWithAdditivesById(id);
         shoppingCartItem.getShoppingCart().setPrice(shoppingCartItem.getShoppingCart().getPrice().subtract(shoppingCartItem.getPrice()) );
         shoppingCartItemService.deleteShoppingCartItem(shoppingCartItem);
@@ -121,11 +129,15 @@ public class ShoppingCartController {
     }
     @Operation(summary = "Regulate quantity of shopping cart items")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "401", description = "User unauthorized"),
-        @ApiResponse(responseCode = "400", description = "Bad request")})
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Shopping cart item not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
     @PutMapping("/shoppingCart/edit/{shoppingCartItemId}")
     ResponseEntity<ShoppingCartItemQuantityResponse> updateShoppingCartItemQuantity(@PathVariable("shoppingCartItemId")Long id, @RequestParam Long quantity){
+        if(id < 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         ShoppingCartItem shoppingCartItem = shoppingCartItemService.getShoppingCartItemById(id);
         BigDecimal p = shoppingCartItem.getPrice();
         p = p.divide(BigDecimal.valueOf(shoppingCartItem.getQuantity()));
@@ -142,21 +154,21 @@ public class ShoppingCartController {
         return new ResponseEntity<>(response,HttpStatus.OK);
 
     }
-    @Operation(summary = "Set branch in shopping cart")
+    @Operation(summary = "Set location in shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
-            @ApiResponse(responseCode = "404", description = "Branch not found"),
+            @ApiResponse(responseCode = "404", description = "Location not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
-    @PutMapping("/shoppingCart/setBranch/{branchId}")
-    ResponseEntity<?> setLocation(@PathVariable Long branchId){
-        if(branchId < 1){
+    @PutMapping("/shoppingCart/setBranch/{locationId}")
+    ResponseEntity<?> setLocation(@PathVariable Long locationId){
+        if(locationId < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        Location location = locationService.getLocationById(branchId);
+        Location location = locationService.getLocationById(locationId);
         shoppingCartService.setShoppingCartLocation(location,email);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -39,7 +39,7 @@ public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
     @Override
     public ShoppingCartItem getShoppingCartItemWithAdditivesById(Long id) {
         logger.info("getShoppingCartItemById() - Finding shopping cart item by id "+id);
-        ShoppingCartItem shoppingCartItem = shoppingCartItemRepository.findShoppingCartItemWithAdditivesById(id);
+        ShoppingCartItem shoppingCartItem = shoppingCartItemRepository.findShoppingCartItemWithAdditivesById(id).orElseThrow(EntityNotFoundException::new);
         logger.info("getShoppingCartItemById() - Shopping cart item was found");
         return shoppingCartItem;
     }
