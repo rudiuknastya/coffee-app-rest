@@ -18,8 +18,10 @@ import project.repository.ProductRepository;
 import project.repository.UserRepository;
 import project.service.AuthenticationService;
 import project.service.JwtService;
+import project.service.ShoppingCartService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +33,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ProductRepository productRepository;
+    private final ShoppingCartService shoppingCartService;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, ProductRepository productRepository) {
+    public AuthenticationServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, ProductRepository productRepository, ShoppingCartService shoppingCartService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.productRepository = productRepository;
+        this.shoppingCartService = shoppingCartService;
     }
 
     @Override
@@ -55,7 +59,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         List<Product> userProducts = new ArrayList<>(1);
         userProducts.add(products.get(0));
         user.setProducts(userProducts);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setPrice(BigDecimal.valueOf(0));
+        shoppingCart.setUser(savedUser);
+        shoppingCartService.saveShoppingCart(shoppingCart);
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         authenticationResponse.setAccessToken(jwtService.generateAccessToken(user));
         authenticationResponse.setRefreshToken(jwtService.generateRefreshToken(user));
@@ -76,13 +84,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse refreshToken(RefreshToken refreshToken) {
-//        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-//        String refreshToken;
-//        String email;
-//        if(authHeader == null || !authHeader.startsWith("Bearer ")){
-//            return;
-//        }
-//        refreshToken = authHeader.substring(7);
         String email = jwtService.extractUserEmail(refreshToken.getRefreshToken());
         if(email != null){
             User user = userRepository.findByEmail(email).orElseThrow();

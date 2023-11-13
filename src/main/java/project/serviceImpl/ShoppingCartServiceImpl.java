@@ -9,6 +9,8 @@ import project.model.shoppingCartModel.ShoppingCartPriceResponse;
 import project.repository.ShoppingCartRepository;
 import project.service.ShoppingCartService;
 
+import java.math.BigDecimal;
+
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
@@ -36,11 +38,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public void deleteShoppingCartByUserEmail(String email) {
-        logger.info("deleteShoppingCartByUserEmail() - Deleting shopping cart by user email "+email);
+    public void resetShoppingCart(String email) {
+        logger.info("resetShoppingCart() - Resetting shopping cart");
         ShoppingCart shoppingCart = shoppingCartRepository.findByUserEmail(email);
-        shoppingCartRepository.delete(shoppingCart);
-        logger.info("deleteShoppingCartByUserEmail() - Shopping cart was deleted");
+        shoppingCart.setPrice(BigDecimal.valueOf(0));
+        shoppingCart.setLocation(null);
+        shoppingCartRepository.save(shoppingCart);
+        logger.info("resetShoppingCart() - Shopping cart was reset");
+
     }
 
     @Override

@@ -7,6 +7,6 @@ import project.model.shoppingCartModel.ShoppingCartResponse;
 public interface ShoppingCartService {
     ShoppingCart saveShoppingCart(ShoppingCart shoppingCart);
     ShoppingCartPriceResponse getShoppingCartPrice(String email);
-    void deleteShoppingCartByUserEmail(String email);
+    void resetShoppingCart(String email);
     void deleteShoppingCart(ShoppingCart shoppingCart);
 }

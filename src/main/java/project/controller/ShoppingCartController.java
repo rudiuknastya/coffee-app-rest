@@ -25,41 +25,19 @@ import java.util.List;
 @RestController
 public class ShoppingCartController {
     private final ShoppingCartService shoppingCartService;
-    private final LocationService locationService;
     private final UserService userService;
     private final ProductService productService;
     private final AdditiveService additiveService;
     private final ShoppingCartItemService shoppingCartItemService;
 
-    public ShoppingCartController(ShoppingCartService shoppingCartService, LocationService locationService, UserService userService, ProductService productService, AdditiveService additiveService, ShoppingCartItemService shoppingCartItemService) {
+    public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService, ProductService productService, AdditiveService additiveService, ShoppingCartItemService shoppingCartItemService) {
         this.shoppingCartService = shoppingCartService;
-        this.locationService = locationService;
         this.userService = userService;
         this.productService = productService;
         this.additiveService = additiveService;
         this.shoppingCartItemService = shoppingCartItemService;
     }
 
-    @Operation(summary = "Create shopping cart")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "401", description = "User unauthorized"),
-            @ApiResponse(responseCode = "400", description = "Bad request")})
-    @PostMapping("/shoppingCart/create")
-    ResponseEntity<?> createShoppingCart(@RequestParam Long locationId){
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        String email = userDetails.getUsername();
-        User user = userService.getUserWithShoppingCartByEmail(email);
-        if(user.getShoppingCart() == null) {
-            ShoppingCart shoppingCart = new ShoppingCart();
-            shoppingCart.setPrice(BigDecimal.valueOf(0));
-            shoppingCart.setLocation(locationService.getLocationById(locationId));
-            shoppingCart.setUser(user);
-            shoppingCartService.saveShoppingCart(shoppingCart);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
     @Operation(summary = "Add product to shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -137,7 +115,6 @@ public class ShoppingCartController {
                 .getPrincipal();
         String email = userDetails.getUsername();
         shoppingCartItemService.deleteShoppingCartItemsByUserEmail(email);
-        shoppingCartService.deleteShoppingCartByUserEmail(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @Operation(summary = "Regulate quantity of shopping cart items")

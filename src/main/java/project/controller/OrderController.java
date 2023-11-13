@@ -89,7 +89,7 @@ public class OrderController {
             orderItemService.saveOrderItem(orderItem);
         }
         shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
-        shoppingCartService.deleteShoppingCart(shoppingCart);
+        shoppingCartService.resetShoppingCart(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -125,7 +125,7 @@ public class OrderController {
             orderItemService.saveOrderItem(orderItem);
         }
         shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
-        shoppingCartService.deleteShoppingCart(shoppingCart);
+        shoppingCartService.resetShoppingCart(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @Operation(summary = "Get orders for user order history")
