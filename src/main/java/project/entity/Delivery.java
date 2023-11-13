@@ -41,23 +41,6 @@ public class Delivery {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
-    public Delivery() {
-    }
-
-    public Delivery(String name, String phoneNumber, String city, String building, String street, String entrance, Long apartment, Payment payment, Long remainderFrom, LocalDate deliveryDate, LocalTime deliveryTime) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.city = city;
-        this.building = building;
-        this.street = street;
-        this.entrance = entrance;
-        this.apartment = apartment;
-        this.payment = payment;
-        this.remainderFrom = remainderFrom;
-        this.deliveryDate = deliveryDate;
-        this.deliveryTime = deliveryTime;
-    }
-
     public Boolean getDeleted() {
         return deleted;
     }

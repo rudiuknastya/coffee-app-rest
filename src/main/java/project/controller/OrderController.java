@@ -16,6 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import project.entity.*;
+import project.mapper.DeliveryMapper;
+import project.mapper.OrderItemMapper;
+import project.mapper.OrderMapper;
 import project.model.PageableDTO;
 import project.model.deliveryModel.DeliveryRequest;
 import project.model.orderItemModel.OrderItemResponse;
@@ -51,24 +54,13 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/orders/new/withDelivery")
     ResponseEntity<?> createOrderWithDelivery(@Valid @RequestBody DeliveryRequest deliveryRequest){
-        Delivery delivery = new Delivery(
-                deliveryRequest.getName(), deliveryRequest.getPhoneNumber(),
-                deliveryRequest.getCity(), deliveryRequest.getBuilding(),
-                deliveryRequest.getStreet(), deliveryRequest.getEntrance(),
-                deliveryRequest.getApartment(), deliveryRequest.getPayment(),
-                deliveryRequest.getRemainderFrom(), deliveryRequest.getDeliveryDate(),
-                deliveryRequest.getDeliveryTime());
-        Order order = new Order();
+        Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest);
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
         List<ShoppingCartItem> shoppingCartItems = shoppingCartItemService.getShoppingCartItemsWithAdditives(email);
         ShoppingCart shoppingCart = shoppingCartItems.get(0).getShoppingCart();
-        order.setPrice(shoppingCart.getPrice());
-        order.setOrderDate(LocalDate.now());
-        order.setOrderTime(LocalTime.now());
-        order.setLocation(shoppingCart.getLocation());
-        order.setUser(shoppingCart.getUser());
+        Order order = OrderMapper.shoppingCartToOrder(shoppingCart);
         if(deliveryRequest.getCallBack()){
           order.setStatus(OrderStatus.CALL);
         } else {
@@ -78,14 +70,10 @@ public class OrderController {
         delivery.setOrder(savedOrder);
         deliveryService.saveDelivery(delivery);
         for(ShoppingCartItem shoppingCartItem: shoppingCartItems){
-            OrderItem orderItem = new OrderItem();
             List<Additive> additives = new ArrayList<>(shoppingCartItem.getAdditives());
+            OrderItem orderItem = OrderItemMapper.shoppingCartItemToOrderItem(shoppingCartItem);
             orderItem.setAdditives(additives);
-            orderItem.setProduct(shoppingCartItem.getProduct());
-            orderItem.setQuantity(shoppingCartItem.getQuantity());
-            orderItem.setDeleted(false);
             orderItem.setOrder(savedOrder);
-            orderItem.setPrice(shoppingCartItem.getPrice());
             orderItemService.saveOrderItem(orderItem);
         }
         shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
@@ -100,28 +88,20 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @PostMapping("/orders/new")
     ResponseEntity<?> createOrder(){
-        Order order = new Order();
+
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
         List<ShoppingCartItem> shoppingCartItems = shoppingCartItemService.getShoppingCartItemsWithAdditives(email);
         ShoppingCart shoppingCart = shoppingCartItems.get(0).getShoppingCart();
-        order.setPrice(shoppingCart.getPrice());
-        order.setOrderDate(LocalDate.now());
-        order.setOrderTime(LocalTime.now());
-        order.setLocation(shoppingCart.getLocation());
-        order.setUser(shoppingCart.getUser());
+        Order order = OrderMapper.shoppingCartToOrder(shoppingCart);
         order.setStatus(OrderStatus.ORDERED);
         Order savedOrder = orderService.saveOrder(order);
         for(ShoppingCartItem shoppingCartItem: shoppingCartItems){
-            OrderItem orderItem = new OrderItem();
             List<Additive> additives = new ArrayList<>(shoppingCartItem.getAdditives());
+            OrderItem orderItem = OrderItemMapper.shoppingCartItemToOrderItem(shoppingCartItem);
             orderItem.setAdditives(additives);
-            orderItem.setProduct(shoppingCartItem.getProduct());
-            orderItem.setQuantity(shoppingCartItem.getQuantity());
-            orderItem.setDeleted(false);
             orderItem.setOrder(savedOrder);
-            orderItem.setPrice(shoppingCartItem.getPrice());
             orderItemService.saveOrderItem(orderItem);
         }
         shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);

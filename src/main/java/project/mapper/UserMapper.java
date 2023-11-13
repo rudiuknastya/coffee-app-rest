@@ -30,6 +30,7 @@ public interface UserMapper {
         user.setRegistrationDate(LocalDate.now());
         return user;
     }
+    @Named("userToUserResponse")
     static UserResponse userToUserResponse(User user){
         if(user == null){
             return null;

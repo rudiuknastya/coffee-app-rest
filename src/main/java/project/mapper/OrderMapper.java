@@ -5,8 +5,11 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import project.entity.Order;
+import project.entity.ShoppingCart;
 import project.model.orderModel.OrderResponse;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,5 +31,14 @@ public interface OrderMapper {
             orderResponses.add(orderResponse);
         }
         return orderResponses;
+    }
+    static Order shoppingCartToOrder(ShoppingCart shoppingCart){
+        Order order = new Order();
+        order.setPrice(shoppingCart.getPrice());
+        order.setOrderDate(LocalDate.now());
+        order.setOrderTime(LocalTime.now());
+        order.setLocation(shoppingCart.getLocation());
+        order.setUser(shoppingCart.getUser());
+        return order;
     }
 }
