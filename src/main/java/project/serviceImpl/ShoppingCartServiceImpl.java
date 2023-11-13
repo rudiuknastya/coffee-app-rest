@@ -3,6 +3,7 @@ package project.serviceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import project.entity.Location;
 import project.entity.ShoppingCart;
 import project.mapper.ShoppingCartMapper;
 import project.model.shoppingCartModel.ShoppingCartPriceResponse;
@@ -49,9 +50,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public void deleteShoppingCart(ShoppingCart shoppingCart) {
-        logger.info("deleteShoppingCart() - Deleting shopping cart");
-        shoppingCartRepository.delete(shoppingCart);
-        logger.info("deleteShoppingCart() - Shopping cart was deleted");
+    public void setShoppingCartLocation(Location location, String email) {
+        logger.info("setShoppingCartLocation() - Setting shopping cart location");
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUserEmail(email);
+        shoppingCart.setLocation(location);
+        shoppingCartRepository.save(shoppingCart);
+        logger.info("setShoppingCartLocation() - Shopping cart location was set");
     }
 }

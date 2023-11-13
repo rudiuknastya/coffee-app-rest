@@ -29,13 +29,15 @@ public class ShoppingCartController {
     private final ProductService productService;
     private final AdditiveService additiveService;
     private final ShoppingCartItemService shoppingCartItemService;
+    private final LocationService locationService;
 
-    public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService, ProductService productService, AdditiveService additiveService, ShoppingCartItemService shoppingCartItemService) {
+    public ShoppingCartController(ShoppingCartService shoppingCartService, UserService userService, ProductService productService, AdditiveService additiveService, ShoppingCartItemService shoppingCartItemService, LocationService locationService) {
         this.shoppingCartService = shoppingCartService;
         this.userService = userService;
         this.productService = productService;
         this.additiveService = additiveService;
         this.shoppingCartItemService = shoppingCartItemService;
+        this.locationService = locationService;
     }
 
     @Operation(summary = "Add product to shopping cart")
@@ -140,5 +142,22 @@ public class ShoppingCartController {
         return new ResponseEntity<>(response,HttpStatus.OK);
 
     }
-
+    @Operation(summary = "Set branch in shopping cart")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Branch not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @PutMapping("/shoppingCart/setBranch/{branchId}")
+    ResponseEntity<?> setLocation(@PathVariable Long branchId){
+        if(branchId < 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String email = userDetails.getUsername();
+        Location location = locationService.getLocationById(branchId);
+        shoppingCartService.setShoppingCartLocation(location,email);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
