@@ -12,12 +12,4 @@ public enum Language {
     public String getLanguageName() {
         return languageName;
     }
-    public static Language fromString(String text) {
-        for (Language l : Language.values()) {
-            if (l.languageName.equalsIgnoreCase(text)) {
-                return l;
-            }
-        }
-        return null;
-    }
 }

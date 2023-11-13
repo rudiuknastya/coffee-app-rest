@@ -13,8 +13,8 @@ public class UserResponse {
     private String phoneNumber;
     @Schema(example = "2000-02-15", required = true)
     private LocalDate birthDate;
-    @Schema(example = "Українська", required = true)
-    private String language;
+
+    private LanguageResponse language;
 
     public Long getId() {
         return id;
@@ -48,11 +48,11 @@ public class UserResponse {
         this.birthDate = birthDate;
     }
 
-    public String getLanguage() {
+    public LanguageResponse getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(LanguageResponse language) {
         this.language = language;
     }
 }

@@ -7,6 +7,7 @@ import project.entity.Language;
 import project.entity.Role;
 import project.entity.User;
 import project.entity.UserStatus;
+import project.model.userModel.LanguageResponse;
 import project.model.userModel.UserRequest;
 import project.model.userModel.UserResponse;
 
@@ -38,7 +39,10 @@ public interface UserMapper {
         userResponse.setName(user.getName());
         userResponse.setPhoneNumber(user.getPhoneNumber());
         userResponse.setBirthDate(user.getBirthDate());
-        userResponse.setLanguage(user.getLanguage().getLanguageName());
+        LanguageResponse languageResponse = new LanguageResponse();
+        languageResponse.setLanguageName(user.getLanguage().getLanguageName());
+        languageResponse.setLanguage(user.getLanguage());
+        userResponse.setLanguage(languageResponse);
         return userResponse;
     }
 }

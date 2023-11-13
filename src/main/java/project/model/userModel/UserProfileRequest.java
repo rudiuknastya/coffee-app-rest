@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import project.entity.Language;
 import project.validation.confirmPassword.PasswordMatching;
 import project.validation.emailValidation.EmailUnique;
 import project.validation.phoneNumberValidation.PhoneNumberUnique;
@@ -46,8 +47,7 @@ public class UserProfileRequest {
     private String email;
     @Schema(example = "2000-02-15")
     private LocalDate birthDate;
-    @Schema(example = "Українська")
-    private String language;
+    private Language language;
     private String oldPassword;
     private String newPassword;
     private String confirmNewPassword;
@@ -84,11 +84,11 @@ public class UserProfileRequest {
         this.birthDate = birthDate;
     }
 
-    public String getLanguage() {
+    public Language getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(Language language) {
         this.language = language;
     }
 

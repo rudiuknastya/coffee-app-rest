@@ -3,19 +3,24 @@ package project.serviceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.entity.User;
 import project.mapper.UserMapper;
+import project.model.userModel.UserProfileRequest;
 import project.model.userModel.UserResponse;
 import project.repository.UserRepository;
 import project.service.UserService;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
+
     private Logger logger = LogManager.getLogger("serviceLogger");
     @Override
     public User saveUser(User user) {
@@ -42,13 +47,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Override
-    public User getUserByEmail(String email) {
-        logger.info("getUserByEmail() - Finding user by email "+email);
-        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
-        logger.info("getUserByEmail() - User was found");
-        return user;
-    }
 
     @Override
     public User getUserWithShoppingCartByEmail(String email) {
@@ -64,5 +62,23 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findWithPasswordResetTokenByEmail(email).orElseThrow(EntityNotFoundException::new);
         logger.info("getUserWithPasswordResetTokenByEmail() - User was found");
         return user;
+    }
+
+    @Override
+    public void updateUser(UserProfileRequest userProfileRequest) {
+        logger.info("updateUser() - Updating user");
+        User user = userRepository.findById(userProfileRequest.getId()).orElseThrow(EntityNotFoundException::new);
+        user.setName(userProfileRequest.getName());
+        user.setPhoneNumber(userProfileRequest.getPhoneNumber());
+        user.setEmail(userProfileRequest.getEmail());
+        if(userProfileRequest.getBirthDate() !=null){
+            user.setBirthDate(userProfileRequest.getBirthDate());
+        }
+        user.setLanguage(userProfileRequest.getLanguage());
+        if(!userProfileRequest.getOldPassword().equals("") && !userProfileRequest.getNewPassword().equals("") && !userProfileRequest.getConfirmNewPassword().equals("")){
+            user.setPassword(bCryptPasswordEncoder.encode(userProfileRequest.getNewPassword()));
+        }
+        userRepository.save(user);
+        logger.info("updateUser() - User was updated");
     }
 }
