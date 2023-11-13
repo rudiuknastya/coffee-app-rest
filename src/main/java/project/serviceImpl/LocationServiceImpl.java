@@ -37,7 +37,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationResponse getLocationResponseById(Long id) {
         logger.info("getLocationResponseById() - Finding location for location response by id "+id);
-        Location location = locationRepository.findById(id).get();
+        Location location = locationRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         LocationResponse locationResponse = LocationMapper.LOCATION_MAPPER.locationToLocationResponse(location);
         logger.info("getLocationResponseById() - Location for location response was found");
         return locationResponse;
