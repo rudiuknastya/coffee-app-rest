@@ -1,7 +1,9 @@
 package project.config;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
@@ -38,5 +40,10 @@ public class ValidationExceptionHandler {
         });
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?> notValid(EntityNotFoundException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+
     }
 }
