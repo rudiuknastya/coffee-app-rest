@@ -17,7 +17,11 @@ public class PageableDTO {
     }
 
     public void setPage(int page) {
-        this.page = page;
+        if(page >= 0) {
+            this.page = page;
+        } else {
+            this.page = 0;
+        }
     }
 
     public int getSize() {
@@ -25,7 +29,11 @@ public class PageableDTO {
     }
 
     public void setSize(int size) {
-        this.size = size;
+        if(size >= 1) {
+            this.size = size;
+        } else {
+            this.size = 5;
+        }
     }
 
     public String getSortField() {
@@ -33,7 +41,11 @@ public class PageableDTO {
     }
 
     public void setSortField(String sortField) {
-        this.sortField = sortField;
+        if(sortField != null && !sortField.equals("")) {
+            this.sortField = sortField;
+        } else {
+            this.sortField = "id";
+        }
     }
 
     public String getSortDirection() {
@@ -41,6 +53,10 @@ public class PageableDTO {
     }
 
     public void setSortDirection(String sortDirection) {
-        this.sortDirection = sortDirection;
+        if(sortDirection != null && !sortDirection.equals("")) {
+            this.sortDirection = sortDirection;
+        } else {
+            this.sortDirection = "ASC";
+        }
     }
 }
