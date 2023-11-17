@@ -1,11 +1,16 @@
 package project.model.orderItemModel;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 public class OrderItemResponse {
+    @Schema(example = "Кава", required = true)
     private String productName;
+    @Schema(example = "30", required = true)
     private BigDecimal price;
+    @Schema(example = "2", required = true)
     private Long quantity;
     private List<String> additives;
 

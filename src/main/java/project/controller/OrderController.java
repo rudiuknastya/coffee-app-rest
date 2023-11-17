@@ -23,8 +23,10 @@ import project.model.PageableDTO;
 import project.model.deliveryModel.DeliveryRequest;
 import project.model.orderItemModel.OrderItemResponse;
 import project.model.orderModel.OrderResponse;
+import project.model.orderModel.ReorderResponse;
 import project.service.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -147,4 +149,74 @@ public class OrderController {
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         return orderItemService.getOrderItemsByOrderId(id,pageable);
     }
+    @Operation(summary = "Get order with new prices for reordering")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @GetMapping("/orders/reorder/{orderId}")
+    ResponseEntity<?> getOrderForReorder(@PathVariable("orderId")Long id){
+        if(id < 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        orderService.getOrderById(id);
+        ReorderResponse reorderResponse = new ReorderResponse();
+        reorderResponse.setOrderId(id);
+        List<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemsWithAdditivesByOrderId(id);
+        reorderResponse.setOrderItemResponses(orderItemResponses);
+        BigDecimal orderPrice = new BigDecimal(0);
+        for(OrderItemResponse orderItemResponse: orderItemResponses){
+            orderPrice = orderPrice.add(orderItemResponse.getPrice());
+        }
+        reorderResponse.setPrice(orderPrice);
+        return new ResponseEntity<>(reorderResponse,HttpStatus.OK);
+    }
+    @Operation(summary = "Reorder order")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @PostMapping("/orders/reorder/{orderId}")
+    ResponseEntity reorder(@PathVariable("orderId")Long id){
+        if(id < 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Order order = orderService.getOrderById(id);
+        Order newOrder = OrderMapper.orderToNewOrder(order);
+        newOrder.setPrice(orderService.getOrderPrice(id));
+        Order savedOrder = orderService.saveOrder(newOrder);
+        orderItemService.saveNewOrderItems(order.getId(), savedOrder);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @Operation(summary = "Reorder order with delivery")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")})
+    @PostMapping("/orders/reorder/withDelivery/{orderId}")
+    ResponseEntity reorderWithDelivery(@PathVariable("orderId")Long id,@Valid @RequestBody DeliveryRequest deliveryRequest){
+        if(id < 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest);
+        Order order = orderService.getOrderById(id);
+        Order newOrder = OrderMapper.orderToNewOrder(order);
+        if(deliveryRequest.getCallBack()){
+            newOrder.setStatus(OrderStatus.CALL);
+        } else {
+            newOrder.setStatus(OrderStatus.ORDERED);
+        }
+        newOrder.setPrice(orderService.getOrderPrice(id));
+        Order savedOrder = orderService.saveOrder(newOrder);
+        delivery.setOrder(savedOrder);
+        deliveryService.saveDelivery(delivery);
+        orderItemService.saveNewOrderItems(order.getId(), savedOrder);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+
 }

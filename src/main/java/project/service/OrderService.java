@@ -5,7 +5,11 @@ import org.springframework.data.domain.Pageable;
 import project.entity.Order;
 import project.model.orderModel.OrderResponse;
 
+import java.math.BigDecimal;
+
 public interface OrderService {
     Order saveOrder(Order order);
     Page<OrderResponse> getUserOrders(String email, Pageable pageable);
+    Order getOrderById(Long id);
+    BigDecimal getOrderPrice(Long orderId);
 }

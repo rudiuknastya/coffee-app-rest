@@ -160,7 +160,7 @@ public class ShoppingCartController {
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "404", description = "Location not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
-    @PutMapping("/shoppingCart/setBranch/{locationId}")
+    @PutMapping("/shoppingCart/setLocation/{locationId}")
     ResponseEntity<?> setLocation(@PathVariable Long locationId){
         if(locationId < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

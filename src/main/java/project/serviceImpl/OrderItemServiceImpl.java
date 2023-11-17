@@ -6,12 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import project.entity.Order;
 import project.entity.OrderItem;
 import project.mapper.OrderItemMapper;
 import project.model.orderItemModel.OrderItemResponse;
 import project.repository.OrderItemRepository;
 import project.service.OrderItemService;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static project.specification.OrderItemSpecification.*;
@@ -39,5 +42,30 @@ public class OrderItemServiceImpl implements OrderItemService {
         Page<OrderItemResponse> orderItemResponsePage = new PageImpl<>(orderItemResponses,pageable,orderItems.getTotalElements());
         logger.info("getOrderItemsByOrderId() - Order items for order item responses were found");
         return orderItemResponsePage;
+    }
+
+    @Override
+    public List<OrderItemResponse> getOrderItemsWithAdditivesByOrderId(Long orderId) {
+        logger.info("getOrderItemsWithAdditivesByOrderId() - Finding order items with additives for order item responses by order id "+orderId);
+        List<OrderItemResponse> orderItemResponses = OrderItemMapper.oldOrderItemListToOrderItemResponseList(orderItemRepository.findWithAdditivesByOrderId(orderId));
+        logger.info("getOrderItemsWithAdditivesByOrderId() - Order items with additives for order item responses were found");
+        return orderItemResponses;
+    }
+
+    @Override
+    public void saveNewOrderItems(Long orderId, Order order) {
+        List<OrderItem> orderItems = orderItemRepository.findWithAdditivesByOrderId(orderId);
+        List<OrderItem> newOrderItems = new ArrayList<>(orderItems.size());
+        for(OrderItem orderItem: orderItems){
+            OrderItem newOrderItem = OrderItemMapper.orderItemToNewOrderItem(orderItem);
+            BigDecimal price = new BigDecimal(0);
+            price = price.add(orderItem.getProduct().getPrice());
+            price = price.add(orderItemRepository.findOrderItemAdditivesSum(orderItem.getId()));
+            price = price.multiply(BigDecimal.valueOf(orderItem.getQuantity()));
+            newOrderItem.setPrice(price);
+            newOrderItem.setOrder(order);
+            newOrderItems.add(newOrderItem);
+        }
+        orderItemRepository.saveAll(newOrderItems);
     }
 }
