@@ -80,7 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse refreshToken(RefreshToken refreshToken) {
         String email = jwtService.extractUserEmail(refreshToken.getRefreshToken());
         if(email != null){
-            User user = userRepository.findByEmail(email).orElseThrow();
+            User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
             if(jwtService.isTokenValid(refreshToken.getRefreshToken(), user)){
                 AuthenticationResponse authenticationResponse = new AuthenticationResponse();
                 authenticationResponse.setAccessToken(jwtService.generateAccessToken(user));

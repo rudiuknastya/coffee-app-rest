@@ -1,6 +1,7 @@
 package project.serviceImpl;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -44,7 +45,12 @@ public class JwtServiceImpl implements JwtService {
     }
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails){
-        String email = extractUserEmail(token);
+        String email = "";
+        try {
+            email = extractUserEmail(token);
+        } catch (ExpiredJwtException e){
+            return false;
+        }
         return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 

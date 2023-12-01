@@ -14,8 +14,7 @@ public class FieldEmailUniqueValidator implements ConstraintValidator<FieldEmail
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        User user = userRepository.findByEmail(s).get();
-        if(user == null){
+        if(!userRepository.findByEmail(s).isPresent()){
             return true;
         }
         return false;

@@ -3,9 +3,9 @@ package project.model.authenticationModel;
 import jakarta.validation.constraints.NotEmpty;
 
 public class AuthenticationRequest {
-    @NotEmpty
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String email;
-    @NotEmpty
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String password;
 
     public String getEmail() {

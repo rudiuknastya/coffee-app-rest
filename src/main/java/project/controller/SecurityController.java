@@ -62,12 +62,13 @@ public class SecurityController {
     @Operation(summary = "Get new access token by refresh token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Not found user by refresh token"),
             @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/refreshToken")
     ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshToken refreshToken){
         AuthenticationResponse authenticationResponse = authenticationService.refreshToken(refreshToken);
         if (authenticationResponse != null) {
-            return new ResponseEntity<>(authenticationService.refreshToken(refreshToken), HttpStatus.OK);
+            return new ResponseEntity<>(authenticationResponse, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -81,7 +82,6 @@ public class SecurityController {
     ResponseEntity<?> forgotPassword(@Valid @RequestBody EmailRequest emailRequest){
         User user = userService.getUserWithPasswordResetTokenByEmail(emailRequest.getEmail());
         String token = UUID.randomUUID().toString();
-        System.out.println(token);
         if(user.getPasswordResetToken() != null){
             user.getPasswordResetToken().setToken(token);
             user.getPasswordResetToken().setExpirationDate();

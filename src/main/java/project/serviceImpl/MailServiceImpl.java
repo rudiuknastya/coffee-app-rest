@@ -21,14 +21,15 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class MailServiceImpl implements MailService {
     private final TemplateEngine templateEngine;
-    @Value("${secret-key}")
-    private String SECRET_KEY;
     @Value("${sender}")
     private String sender;
+    private final SendGrid sendGrid;
 
-    public MailServiceImpl(TemplateEngine templateEngine) {
+    public MailServiceImpl(TemplateEngine templateEngine, SendGrid sendGrid) {
         this.templateEngine = templateEngine;
+        this.sendGrid = sendGrid;
     }
+
     private Logger logger = LogManager.getLogger("serviceLogger");
     @Async
     @Override
@@ -39,17 +40,16 @@ public class MailServiceImpl implements MailService {
         Email toEmail = new Email(to);
         Content content = new Content("text/html", build(token));
         Mail mail = new Mail(from, subject, toEmail, content);
-
-        SendGrid sg = new SendGrid(SECRET_KEY);
         Request request = new Request();
         try {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
-            Response response = sg.api(request);
+            Response response = sendGrid.api(request);
             logger.info("sendToken() - Token was sent");
             return CompletableFuture.completedFuture(response.getBody());
         } catch (IOException ex) {
+            logger.error(ex.getMessage());
             throw new RuntimeException(ex);
         }
     }

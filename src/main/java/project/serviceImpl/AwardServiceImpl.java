@@ -1,6 +1,7 @@
 package project.serviceImpl;
 
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
@@ -57,7 +58,7 @@ public class AwardServiceImpl implements AwardService {
         ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
         shoppingCartItem.setQuantity(1L);
         shoppingCartItem.setPrice(BigDecimal.valueOf(0));
-        Product product = productRepository.findById(id).orElseThrow(EntityExistsException::new);
+        Product product = productRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         shoppingCartItem.setProduct(product);
         shoppingCartItem.setShoppingCart(shoppingCart);
         shoppingCartItemRepository.save(shoppingCartItem);

@@ -10,10 +10,10 @@ import project.validation.confirmPassword.PasswordMatching;
         message = "Паролі мають бути однаковими"
 )
 public class ChangePasswordRequest {
-    @NotEmpty
-    @Size(min=8, max=10, message = "Розмір паролю має бути не менше 8 та не більше 10 символів")
+    @NotEmpty(message = "Поле не може бути порожнім")
+    @Size(min=8,  message = "Розмір паролю має бути не менше 8 символів")
     private String newPassword;
-    @NotEmpty
+    @NotEmpty(message = "Поле не може бути порожнім")
     private String confirmNewPassword;
 
 

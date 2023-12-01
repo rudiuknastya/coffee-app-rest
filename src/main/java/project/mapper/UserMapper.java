@@ -28,6 +28,7 @@ public interface UserMapper {
         user.setStatus(UserStatus.NEW);
         user.setLanguage(Language.UKR);
         user.setRegistrationDate(LocalDate.now());
+        user.setDeleted(false);
         return user;
     }
     @Named("userToUserResponse")
