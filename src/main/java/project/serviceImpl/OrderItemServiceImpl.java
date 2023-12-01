@@ -6,8 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import project.entity.Additive;
 import project.entity.Order;
 import project.entity.OrderItem;
+import project.entity.ShoppingCartItem;
 import project.mapper.OrderItemMapper;
 import project.model.orderItemModel.OrderItemResponse;
 import project.repository.OrderItemRepository;
@@ -54,6 +56,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public void saveNewOrderItems(Long orderId, Order order) {
+        logger.info("saveNewOrderItems() - Saving new order items");
         List<OrderItem> orderItems = orderItemRepository.findWithAdditivesByOrderId(orderId);
         List<OrderItem> newOrderItems = new ArrayList<>(orderItems.size());
         for(OrderItem orderItem: orderItems){
@@ -67,5 +70,19 @@ public class OrderItemServiceImpl implements OrderItemService {
             newOrderItems.add(newOrderItem);
         }
         orderItemRepository.saveAll(newOrderItems);
+        logger.info("saveNewOrderItems() - New order items were saved");
+    }
+
+    @Override
+    public void createOrderItems(List<ShoppingCartItem> shoppingCartItems, Order order) {
+        logger.info("createOrderItems() - Creating order items");
+        for(ShoppingCartItem shoppingCartItem: shoppingCartItems){
+            List<Additive> additives = new ArrayList<>(shoppingCartItem.getAdditives());
+            OrderItem orderItem = OrderItemMapper.shoppingCartItemToOrderItem(shoppingCartItem);
+            orderItem.setAdditives(additives);
+            orderItem.setOrder(order);
+            orderItemRepository.save(orderItem);
+        }
+        logger.info("createOrderItems() - Order items were created");
     }
 }

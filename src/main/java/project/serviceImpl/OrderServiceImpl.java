@@ -1,6 +1,7 @@
 package project.serviceImpl;
 
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import project.entity.Order;
+import project.entity.OrderStatus;
+import project.entity.ShoppingCart;
 import project.mapper.OrderMapper;
 import project.model.orderModel.OrderResponse;
 import project.repository.OrderRepository;
@@ -46,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order getOrderById(Long id) {
         logger.info("getOrderById() - Finding order by id "+id);
-        Order order = orderRepository.findById(id).orElseThrow(EntityExistsException::new);
+        Order order = orderRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         logger.info("getOrderById() - Order was found");
         return order;
     }
@@ -57,5 +60,15 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal price = orderRepository.findOrderSum(orderId);
         logger.info("getOrderPrice() - Order price was found");
         return price;
+    }
+
+    @Override
+    public Order createOrder(ShoppingCart shoppingCart,OrderStatus status) {
+        logger.info("createOrder() - Creating order");
+        Order order = OrderMapper.shoppingCartToOrder(shoppingCart);
+        order.setStatus(status);
+        Order savedOrder = orderRepository.save(order);
+        logger.info("createOrder() - Order was created");
+        return savedOrder;
     }
 }

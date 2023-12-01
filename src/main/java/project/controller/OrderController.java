@@ -51,36 +51,26 @@ public class OrderController {
 
     @Operation(summary = "Create order with delivery")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/orders/new/withDelivery")
     ResponseEntity<?> createOrderWithDelivery(@Valid @RequestBody DeliveryRequest deliveryRequest){
-        Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest);
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
         List<ShoppingCartItem> shoppingCartItems = shoppingCartItemService.getShoppingCartItemsWithAdditives(email);
-        ShoppingCart shoppingCart = shoppingCartItems.get(0).getShoppingCart();
-        Order order = OrderMapper.shoppingCartToOrder(shoppingCart);
+        Order savedOrder;
         if(deliveryRequest.getCallBack()){
-          order.setStatus(OrderStatus.CALL);
+            savedOrder = orderService.createOrder(shoppingCartItems.get(0).getShoppingCart(),OrderStatus.CALL);
         } else {
-            order.setStatus(OrderStatus.ORDERED);
+            savedOrder = orderService.createOrder(shoppingCartItems.get(0).getShoppingCart(),OrderStatus.ORDERED);
         }
-        Order savedOrder = orderService.saveOrder(order);
-        delivery.setOrder(savedOrder);
-        deliveryService.saveDelivery(delivery);
-        for(ShoppingCartItem shoppingCartItem: shoppingCartItems){
-            List<Additive> additives = new ArrayList<>(shoppingCartItem.getAdditives());
-            OrderItem orderItem = OrderItemMapper.shoppingCartItemToOrderItem(shoppingCartItem);
-            orderItem.setAdditives(additives);
-            orderItem.setOrder(savedOrder);
-            orderItemService.saveOrderItem(orderItem);
-        }
+        deliveryService.createDelivery(deliveryRequest,savedOrder);
+        orderItemService.createOrderItems(shoppingCartItems,savedOrder);
         shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
         shoppingCartService.resetShoppingCart(email);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Operation(summary = "Create order without delivery")
@@ -95,18 +85,9 @@ public class OrderController {
                 .getPrincipal();
         String email = userDetails.getUsername();
         List<ShoppingCartItem> shoppingCartItems = shoppingCartItemService.getShoppingCartItemsWithAdditives(email);
-        ShoppingCart shoppingCart = shoppingCartItems.get(0).getShoppingCart();
-        Order order = OrderMapper.shoppingCartToOrder(shoppingCart);
-        order.setStatus(OrderStatus.ORDERED);
-        Order savedOrder = orderService.saveOrder(order);
-        for(ShoppingCartItem shoppingCartItem: shoppingCartItems){
-            List<Additive> additives = new ArrayList<>(shoppingCartItem.getAdditives());
-            OrderItem orderItem = OrderItemMapper.shoppingCartItemToOrderItem(shoppingCartItem);
-            orderItem.setAdditives(additives);
-            orderItem.setOrder(savedOrder);
-            orderItemService.saveOrderItem(orderItem);
-        }
-        shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
+        Order savedOrder = orderService.createOrder(shoppingCartItems.get(0).getShoppingCart(),OrderStatus.ORDERED);
+        orderItemService.createOrderItems(shoppingCartItems,savedOrder);
+        shoppingCartItemService.deleteShoppingCartItemsByUserEmail(email);
         shoppingCartService.resetShoppingCart(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -165,11 +146,7 @@ public class OrderController {
         reorderResponse.setOrderId(id);
         List<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemsWithAdditivesByOrderId(id);
         reorderResponse.setOrderItemResponses(orderItemResponses);
-        BigDecimal orderPrice = new BigDecimal(0);
-        for(OrderItemResponse orderItemResponse: orderItemResponses){
-            orderPrice = orderPrice.add(orderItemResponse.getPrice());
-        }
-        reorderResponse.setPrice(orderPrice);
+        reorderResponse.setPrice(orderService.getOrderPrice(id));
         return new ResponseEntity<>(reorderResponse,HttpStatus.OK);
     }
     @Operation(summary = "Reorder order")
