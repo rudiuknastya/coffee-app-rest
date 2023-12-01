@@ -22,7 +22,7 @@ public interface ShoppingCartMapper {
     ShoppingCartPriceResponse shoppingCartToShoppingCartPriceResponse(ShoppingCart shoppingCart);
     @Named("shoppingCartItemsToShoppingCartResponse")
     static ShoppingCartResponse shoppingCartItemsToShoppingCartResponse(List<ShoppingCartItem> shoppingCartItems){
-        if (shoppingCartItems == null){
+        if (shoppingCartItems == null || shoppingCartItems.size() == 0){
             return null;
         }
         ShoppingCartResponse shoppingCartResponse = new ShoppingCartResponse();

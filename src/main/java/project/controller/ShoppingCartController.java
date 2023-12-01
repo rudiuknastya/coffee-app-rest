@@ -42,7 +42,7 @@ public class ShoppingCartController {
 
     @Operation(summary = "Add product to shopping cart")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "404", description = "Product not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
@@ -51,27 +51,8 @@ public class ShoppingCartController {
         if(productId < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        BigDecimal price = new BigDecimal(0);
-        ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
-        shoppingCartItem.setQuantity(shoppingCartItemRequest.getQuantity());
-        Product product = productService.getProductById(productId);
-        price = price.add(product.getPrice());
-        shoppingCartItem.setProduct(product);
-        List<Additive> additives = additiveService.getAdditivesById(shoppingCartItemRequest.getAdditiveIds());
-        for(Additive additive: additives){
-            price = price.add(additive.getPrice());
-        }
-        price = price.multiply(BigDecimal.valueOf(shoppingCartItemRequest.getQuantity()));
-        shoppingCartItem.setPrice(price);
-        shoppingCartItem.setAdditives(additives);
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        String email = userDetails.getUsername();
-        User user = userService.getUserWithShoppingCartByEmail(email);
-        user.getShoppingCart().setPrice(user.getShoppingCart().getPrice().add(price));
-        shoppingCartItem.setShoppingCart(user.getShoppingCart());
-        shoppingCartItemService.saveShoppingCartItem(shoppingCartItem);
-        return new ResponseEntity<>(HttpStatus.OK);
+        shoppingCartItemService.createShoppingCartItem(productId,shoppingCartItemRequest);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
     @Operation(summary = "Get shopping cart price")
     @ApiResponses(value = {
@@ -90,13 +71,18 @@ public class ShoppingCartController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Shopping cart empty"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/shoppingCart")
-    ResponseEntity<ShoppingCartResponse> getShoppingCart(){
+    ResponseEntity<?> getShoppingCart(){
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        return new ResponseEntity<>(shoppingCartItemService.getShoppingCartResponse(email), HttpStatus.OK);
+        ShoppingCartResponse shoppingCartResponse = shoppingCartItemService.getShoppingCartResponse(email);
+        if(shoppingCartResponse == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(shoppingCartResponse, HttpStatus.OK);
     }
     @Operation(summary = "Delete shopping cart item by id")
     @ApiResponses(value = {
@@ -125,6 +111,7 @@ public class ShoppingCartController {
                 .getPrincipal();
         String email = userDetails.getUsername();
         shoppingCartItemService.deleteShoppingCartItemsByUserEmail(email);
+        shoppingCartService.resetShoppingCart(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @Operation(summary = "Regulate quantity of shopping cart items")
@@ -138,18 +125,7 @@ public class ShoppingCartController {
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        ShoppingCartItem shoppingCartItem = shoppingCartItemService.getShoppingCartItemById(id);
-        BigDecimal p = shoppingCartItem.getPrice();
-        p = p.divide(BigDecimal.valueOf(shoppingCartItem.getQuantity()));
-        p = p.multiply(BigDecimal.valueOf(quantity));
-
-        BigDecimal op = shoppingCartItem.getShoppingCart().getPrice();
-        op = op.subtract(shoppingCartItem.getPrice());
-        shoppingCartItem.setPrice(p);
-        op = op.add(shoppingCartItem.getPrice());
-        shoppingCartItem.getShoppingCart().setPrice(op);
-        shoppingCartItem.setQuantity(quantity);
-        shoppingCartItemService.saveShoppingCartItem(shoppingCartItem);
+        ShoppingCartItem shoppingCartItem = shoppingCartItemService.updateShoppingCartItem(id,quantity);
         ShoppingCartItemQuantityResponse response = new ShoppingCartItemQuantityResponse(id,quantity,shoppingCartItem.getPrice(),shoppingCartItem.getShoppingCart().getPrice());
         return new ResponseEntity<>(response,HttpStatus.OK);
 
