@@ -1,5 +1,6 @@
 package project.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,23 +14,27 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
 
 @Configuration
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    @Autowired
+    MvcRequestMatcher.Builder mvc;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter, UserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf((c)-> c.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/swagger-ui/**","/v3/api-docs/**", "/register", "/login","/refreshToken","/forgotPassword","/changePassword").permitAll()
+                        .requestMatchers(mvc.pattern("/"),mvc.pattern("/swagger-ui/**"), mvc.pattern("/v3/api-docs/**"), mvc.pattern("/register"), mvc.pattern("/login"),mvc.pattern("/refreshToken"),mvc.pattern("/forgotPassword"),mvc.pattern("/changePassword")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sm)->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
