@@ -79,7 +79,7 @@ public class SecurityController {
             @ApiResponse(responseCode = "404", description = "User with such email not found"),
             @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/forgotPassword")
-    ResponseEntity<?> forgotPassword(@Valid @RequestBody EmailRequest emailRequest){
+    ResponseEntity<?> forgotPassword(HttpServletRequest httpRequest,@Valid @RequestBody EmailRequest emailRequest){
         User user = userService.getUserWithPasswordResetTokenByEmail(emailRequest.getEmail());
         String token = UUID.randomUUID().toString();
         if(user.getPasswordResetToken() != null){
@@ -90,7 +90,7 @@ public class SecurityController {
             PasswordResetToken passwordResetToken = new PasswordResetToken(token, user);
             passwordResetTokenService.savePasswordResetToken(passwordResetToken);
         }
-        return new ResponseEntity<>(mailService.sendToken(token,emailRequest.getEmail()),HttpStatus.OK);
+        return new ResponseEntity<>(mailService.sendToken(token,emailRequest.getEmail(),httpRequest),HttpStatus.OK);
     }
     @Operation(summary = "Change password")
     @ApiResponses(value = {
