@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.model.PageableDTO;
@@ -28,9 +30,10 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Categories not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/categories")
-    Page<CategoryResponse> getCategories(PageableDTO pageableDTO){
+    ResponseEntity<?> getCategories(PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -40,6 +43,10 @@ public class CategoryController {
             sort = Sort.by(pageableDTO.getSortField()).ascending();
         }
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        return categoryService.getCategoryResponses(pageable);
+        Page<CategoryResponse> categoryResponses = categoryService.getCategoryResponses(pageable);
+        if(categoryResponses.getContent().size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(categoryResponses, HttpStatus.OK);
     }
 }

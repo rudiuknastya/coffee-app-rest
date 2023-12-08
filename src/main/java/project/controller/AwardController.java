@@ -38,9 +38,10 @@ public class AwardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Awards not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/awards")
-    Page<AwardDTO> getUserAwards(PageableDTO pageableDTO){
+    ResponseEntity<?> getUserAwards(PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -53,7 +54,11 @@ public class AwardController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        return awardService.getAwards(email,pageable);
+        Page<AwardDTO> awardDTOS = awardService.getAwards(email,pageable);
+        if(awardDTOS.getContent().size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(awardDTOS, HttpStatus.OK);
     }
     @Operation(summary = "Add award to shopping cart")
     @ApiResponses(value = {

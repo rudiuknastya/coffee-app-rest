@@ -32,9 +32,10 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Products not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/products/{categoryId}")
-    Page<ProductResponse> getProductsForCategory(@PathVariable("categoryId")Long categoryId, PageableDTO pageableDTO){
+    ResponseEntity<?> getProductsForCategory(@PathVariable("categoryId")Long categoryId, PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -44,7 +45,11 @@ public class ProductController {
             sort = Sort.by(pageableDTO.getSortField()).ascending();
         }
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        return productService.getProductsForCategory(categoryId,pageable);
+        Page<ProductResponse> productResponses = productService.getProductsForCategory(categoryId,pageable);
+        if(productResponses.getContent().size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(productResponses, HttpStatus.OK);
     }
 
     @Operation(summary = "Get product with additive types by id")

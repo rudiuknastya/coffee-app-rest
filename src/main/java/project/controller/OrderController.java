@@ -75,7 +75,7 @@ public class OrderController {
 
     @Operation(summary = "Create order without delivery")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @PostMapping("/orders/new")
@@ -89,15 +89,16 @@ public class OrderController {
         orderItemService.createOrderItems(shoppingCartItems,savedOrder);
         shoppingCartItemService.deleteShoppingCartItemsByUserEmail(email);
         shoppingCartService.resetShoppingCart(email);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
     @Operation(summary = "Get orders for user order history")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Orders not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/orders/history")
-    Page<OrderResponse> getOrdersForOrderHistory(PageableDTO pageableDTO){
+    ResponseEntity<?> getOrdersForOrderHistory(PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -110,15 +111,20 @@ public class OrderController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        return orderService.getUserOrders(email,pageable);
+        Page<OrderResponse> orderResponses = orderService.getUserOrders(email,pageable);
+        if(orderResponses.getContent().size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(orderResponses,HttpStatus.OK);
     }
     @Operation(summary = "Get order items for order in order history")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Orders not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/orders/history/{orderId}")
-    Page<OrderItemResponse> getOrderItemsForOrderHistory(@PathVariable("orderId")Long id, PageableDTO pageableDTO){
+    ResponseEntity<?> getOrderItemsForOrderHistory(@PathVariable("orderId")Long id, PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -128,7 +134,11 @@ public class OrderController {
             sort = Sort.by(pageableDTO.getSortField()).ascending();
         }
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        return orderItemService.getOrderItemsByOrderId(id,pageable);
+        Page<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemsByOrderId(id,pageable);
+        if(orderItemResponses.getContent().size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(orderItemResponses,HttpStatus.OK);
     }
     @Operation(summary = "Get order with new prices for reordering")
     @ApiResponses(value = {

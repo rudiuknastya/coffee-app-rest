@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,9 +27,14 @@ public class AdditiveController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Additives not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/additives/{additiveTypeId}")
-    List<AdditiveDTO> getAdditivesForAdditiveType(@PathVariable("additiveTypeId")Long additiveTypeId){
-        return additiveService.getAdditiveDTOsByAdditiveTypeId(additiveTypeId);
+    ResponseEntity<?> getAdditivesForAdditiveType(@PathVariable("additiveTypeId")Long additiveTypeId){
+        List<AdditiveDTO> additiveDTOS = additiveService.getAdditiveDTOsByAdditiveTypeId(additiveTypeId);
+        if(additiveDTOS.size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(additiveDTOS, HttpStatus.OK);
     }
 }

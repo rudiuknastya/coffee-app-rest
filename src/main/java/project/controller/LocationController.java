@@ -35,10 +35,15 @@ public class LocationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Location coordinates not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/locationCoordinates")
-    List<LocationCoordinatesDTO> getLocationCoordinates(){
-        return locationService.getLocationCoordinates();
+    ResponseEntity<?> getLocationCoordinates(){
+        List<LocationCoordinatesDTO> locationCoordinatesDTOS = locationService.getLocationCoordinates();
+        if(locationCoordinatesDTOS.size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(locationCoordinatesDTOS,HttpStatus.OK);
     }
     @Operation(summary = "Get location by id")
     @ApiResponses(value = {
@@ -57,9 +62,10 @@ public class LocationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "User unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Locations not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")})
     @GetMapping("/locationsList")
-    Page<LocationAddressDTO> getLocationAddresses(PageableDTO pageableDTO){
+    ResponseEntity<?> getLocationAddresses(PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -69,7 +75,11 @@ public class LocationController {
             sort = Sort.by(pageableDTO.getSortField()).ascending();
         }
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        return locationService.getLocationAddresses(pageable);
+        Page<LocationAddressDTO> locationAddressDTOS = locationService.getLocationAddresses(pageable);
+        if(locationAddressDTOS.getContent().size() == 0){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(locationAddressDTOS, HttpStatus.OK);
     }
 
 
