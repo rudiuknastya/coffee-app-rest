@@ -1,13 +1,10 @@
 package project.serviceImpl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.entity.*;
 import project.mapper.UserMapper;
@@ -21,24 +18,22 @@ import project.service.AuthenticationService;
 import project.service.JwtService;
 import project.service.ShoppingCartService;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ProductRepository productRepository;
     private final ShoppingCartService shoppingCartService;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, ProductRepository productRepository, ShoppingCartService shoppingCartService) {
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, ProductRepository productRepository, ShoppingCartService shoppingCartService) {
         this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.productRepository = productRepository;
@@ -48,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse register(UserRequest userRequest) {
         User user = UserMapper.userRequestToUser(userRequest);
-        user.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         List<Product> products = productRepository.findProductsForAward();
         List<Product> userProducts = new ArrayList<>(1);
         userProducts.add(products.get(0));

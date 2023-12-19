@@ -3,7 +3,7 @@ package project.serviceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.entity.User;
 import project.mapper.UserMapper;
@@ -13,15 +13,15 @@ import project.repository.UserRepository;
 import project.service.UserService;
 @Service
 public class UserServiceImpl implements UserService {
+    private Logger logger = LogManager.getLogger("serviceLogger");
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    private Logger logger = LogManager.getLogger("serviceLogger");
     @Override
     public User saveUser(User user) {
         logger.info("saveUser() - Saving user");
@@ -33,7 +33,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserResponseByEmail(String email) {
         logger.info("getUserResponseByEmail() - Finding user for user response by email "+email);
-        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new EntityNotFoundException("User not found by email "+email));
         UserResponse userResponse = UserMapper.userToUserResponse(user);
         logger.info("getUserResponseByEmail() - User for user response was found");
         return userResponse;
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setLanguage(userProfileRequest.getLanguage());
         if(!userProfileRequest.getOldPassword().equals("") && !userProfileRequest.getNewPassword().equals("") && !userProfileRequest.getConfirmNewPassword().equals("")){
-            user.setPassword(bCryptPasswordEncoder.encode(userProfileRequest.getNewPassword()));
+            user.setPassword(passwordEncoder.encode(userProfileRequest.getNewPassword()));
         }
         userRepository.save(user);
         logger.info("updateUser() - User was updated");
