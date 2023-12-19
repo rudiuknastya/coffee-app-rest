@@ -23,3 +23,5 @@ springdoc:
   swagger-ui:
     disable-swagger-default-url: true
     path: /
+    tagsSorter: alpha
+    operations-sorter: alpha
