@@ -35,21 +35,27 @@ public class UserProfileRequest {
     @Schema(example = "1", required = true)
     private Long id;
     @NotEmpty(message = "Поле не може бути порожнім ")
+    @Size(max=25, message = "Розмір поля має бути не більше 25 символів")
     @Schema(example = "Софія", required = true)
     private String name;
     @NotEmpty(message = "Поле не може бути порожнім ")
-    @Size(min=4, max=15, message = "Розмір поля має бути не менше 4 та не більше 15 символів")
-    @Pattern(regexp = "^\\+?[1-9][0-9]{4,15}$", message = "Невірний формат номеру")
+    @Size(max=13, message = "Розмір номеру має бути не більше 13 символів")
+    @Pattern(regexp = "\\+380(50|66|95|99|67|68|96|97|98|63|93|73)[0-9]{7}", message = "Невірний формат номеру")
     @Schema(example = "+380994526713", required = true)
     private String phoneNumber;
     @NotEmpty(message = "Поле не може бути порожнім ")
+    @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
     @Email(regexp = "[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\\.[a-z]{2,3}", message = "Невірний формат email")
+    @Schema(example = "user1@gmail.com", required = true)
     private String email;
     @Schema(example = "2000-02-15")
     private LocalDate birthDate;
     private Language language;
+    @Schema(example = "Password/1", required = true)
     private String oldPassword;
+    @Schema(example = "Password/2", required = true)
     private String newPassword;
+    @Schema(example = "Password/2", required = true)
     private String confirmNewPassword;
 
     public Long getId() {

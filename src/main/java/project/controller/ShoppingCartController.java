@@ -1,6 +1,7 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,21 +38,23 @@ public class ShoppingCartController {
         this.locationService = locationService;
     }
 
-    @Operation(summary = "Add product to shopping cart")
+    @Operation(summary = "Add product to shopping cart",description = "Adding product to shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Product not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/shoppingCart/add/{productId}")
-    ResponseEntity<?> createShoppingCartItem(@PathVariable Long productId, @RequestBody ShoppingCartItemRequest shoppingCartItemRequest){
+    ResponseEntity<?> createShoppingCartItem(@PathVariable
+                                             @Parameter(name = "productId", description = "Product id", example = "1")
+                                             Long productId, @RequestBody ShoppingCartItemRequest shoppingCartItemRequest){
         if(productId < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         shoppingCartItemService.createShoppingCartItem(productId,shoppingCartItemRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-    @Operation(summary = "Get shopping cart price")
+    @Operation(summary = "Get shopping cart price",description = "Getting shopping cart price")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ShoppingCartPriceResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -64,7 +67,7 @@ public class ShoppingCartController {
         ShoppingCartPriceResponse shoppingCart = shoppingCartService.getShoppingCartPrice(email);
         return new ResponseEntity<>(shoppingCart,HttpStatus.OK);
     }
-    @Operation(summary = "Get shopping cart")
+    @Operation(summary = "Get shopping cart",description = "Getting shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ShoppingCartResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -77,14 +80,16 @@ public class ShoppingCartController {
         ShoppingCartResponse shoppingCartResponse = shoppingCartItemService.getShoppingCartResponse(email);
         return new ResponseEntity<>(shoppingCartResponse, HttpStatus.OK);
     }
-    @Operation(summary = "Delete shopping cart item by id")
+    @Operation(summary = "Delete shopping cart item by id",description = "Deleting shopping cart item by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Shopping cart item not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @DeleteMapping("/shoppingCart/delete/{shoppingCartItemId}")
-    ResponseEntity<?> deleteShoppingCartItem(@PathVariable("shoppingCartItemId")Long id){
+    ResponseEntity<?> deleteShoppingCartItem(@PathVariable("shoppingCartItemId")
+                                             @Parameter(name = "shoppingCartItemId", description = "Shopping cart item id", example = "1")
+                                             Long id){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -93,7 +98,7 @@ public class ShoppingCartController {
         shoppingCartItemService.deleteShoppingCartItem(shoppingCartItem);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @Operation(summary = "Delete shopping cart")
+    @Operation(summary = "Delete shopping cart", description = "Deleting all products in shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -107,14 +112,18 @@ public class ShoppingCartController {
         shoppingCartService.resetShoppingCart(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @Operation(summary = "Regulate quantity of shopping cart items")
+    @Operation(summary = "Regulate quantity of shopping cart items",description = "Update quantity of shopping cart items in shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Shopping cart item not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PutMapping("/shoppingCart/edit/{shoppingCartItemId}")
-    ResponseEntity<ShoppingCartItemQuantityResponse> updateShoppingCartItemQuantity(@PathVariable("shoppingCartItemId")Long id, @RequestParam Long quantity){
+    ResponseEntity<ShoppingCartItemQuantityResponse> updateShoppingCartItemQuantity(@PathVariable("shoppingCartItemId")
+                                                                                    @Parameter(name = "shoppingCartItemId", description = "Shopping cart item id", example = "1")
+                                                                                    Long id,
+                                                                                    @Parameter(name = "quantity", description = "Shopping cart item quantity", example = "3")
+                                                                                    @RequestParam Long quantity){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -123,14 +132,16 @@ public class ShoppingCartController {
         return new ResponseEntity<>(response,HttpStatus.OK);
 
     }
-    @Operation(summary = "Set location in shopping cart")
+    @Operation(summary = "Set location in shopping cart", description = "Setting location in shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Location not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PutMapping("/shoppingCart/setLocation/{locationId}")
-    ResponseEntity<?> setLocation(@PathVariable Long locationId){
+    ResponseEntity<?> setLocation(@PathVariable
+                                  @Parameter(name = "locationId", description = "Location id", example = "1")
+                                  Long locationId){
         if(locationId < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
