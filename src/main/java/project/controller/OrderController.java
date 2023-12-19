@@ -1,6 +1,7 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,7 +53,7 @@ public class OrderController {
         this.deliveryService = deliveryService;
     }
 
-    @Operation(summary = "Create order with delivery")
+    @Operation(summary = "Create order with delivery",description = "Creating order with delivery")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -76,7 +77,7 @@ public class OrderController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Create order without delivery")
+    @Operation(summary = "Create order without delivery",description = "Creating order without delivery")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -94,7 +95,7 @@ public class OrderController {
         shoppingCartService.resetShoppingCart(email);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-    @Operation(summary = "Get orders for user order history")
+    @Operation(summary = "Get orders",description = "Get orders for order history")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = OrderResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -116,13 +117,15 @@ public class OrderController {
         Page<OrderResponse> orderResponses = orderService.getUserOrders(email,pageable);
         return new ResponseEntity<>(orderResponses,HttpStatus.OK);
     }
-    @Operation(summary = "Get order items for order in order history")
+    @Operation(summary = "Get order items",description = "Get order items for order in order history")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = OrderItemResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/orders/history/{orderId}")
-    ResponseEntity<?> getOrderItemsForOrderHistory(@PathVariable("orderId")Long id, PageableDTO pageableDTO){
+    ResponseEntity<?> getOrderItemsForOrderHistory(@PathVariable("orderId")
+                                                   @Parameter(name = "orderId", description = "Order id", example = "1")
+                                                   Long id, PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -135,14 +138,16 @@ public class OrderController {
         Page<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemsByOrderId(id,pageable);
         return new ResponseEntity<>(orderItemResponses,HttpStatus.OK);
     }
-    @Operation(summary = "Get order with new prices for reordering")
+    @Operation(summary = "Get order for reordering", description = "Get order with new prices for reordering")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Order not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/orders/reorder/{orderId}")
-    ResponseEntity<?> getOrderForReorder(@PathVariable("orderId")Long id){
+    ResponseEntity<?> getOrderForReorder(@PathVariable("orderId")
+                                         @Parameter(name = "orderId", description = "Order id", example = "1")
+                                         Long id){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -154,14 +159,16 @@ public class OrderController {
         reorderResponse.setPrice(orderService.getOrderPrice(id));
         return new ResponseEntity<>(reorderResponse,HttpStatus.OK);
     }
-    @Operation(summary = "Reorder order")
+    @Operation(summary = "Reorder order",description = "Reordering order")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Order not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/orders/reorder/{orderId}")
-    ResponseEntity<?> reorder(@PathVariable("orderId")Long id){
+    ResponseEntity<?> reorder(@PathVariable("orderId")
+                              @Parameter(name = "orderId", description = "Order id", example = "1")
+                              Long id){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -172,14 +179,17 @@ public class OrderController {
         orderItemService.saveNewOrderItems(order.getId(), savedOrder);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @Operation(summary = "Reorder order with delivery")
+    @Operation(summary = "Reorder order with delivery",description = "Reordering order with delivery")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Order not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/orders/reorder/withDelivery/{orderId}")
-    ResponseEntity<?> reorderWithDelivery(@PathVariable("orderId")Long id,@Valid @RequestBody DeliveryRequest deliveryRequest){
+    ResponseEntity<?> reorderWithDelivery(@PathVariable("orderId")
+                                          @Parameter(name = "orderId", description = "Order id", example = "1")
+                                          Long id,
+                                          @Valid @RequestBody DeliveryRequest deliveryRequest){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

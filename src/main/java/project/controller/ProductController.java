@@ -1,6 +1,7 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,13 +33,15 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-    @Operation(summary = "Get products for category")
+    @Operation(summary = "Get products for category",description = "Get products by category id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ProductResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/products/{categoryId}")
-    ResponseEntity<?> getProductsForCategory(@PathVariable("categoryId")Long categoryId, PageableDTO pageableDTO){
+    ResponseEntity<?> getProductsForCategory(@PathVariable("categoryId")
+                                             @Parameter(name = "categoryId", description = "Category id", example = "1")
+                                             Long categoryId, PageableDTO pageableDTO){
         Pageable pageable;
         Sort sort;
         if(pageableDTO.getSortDirection().equals("DESC")){
@@ -52,14 +55,16 @@ public class ProductController {
         return new ResponseEntity<>(productResponses, HttpStatus.OK);
     }
 
-    @Operation(summary = "Get product with additive types by id")
+    @Operation(summary = "Get product with additive types by id",description = "Get product with additive types by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ProductDTO.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Product not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/product/{id}")
-    ResponseEntity<ProductDTO> getProduct(@PathVariable("id")Long id){
+    ResponseEntity<ProductDTO> getProduct(@PathVariable("id")
+                                          @Parameter(name = "id", description = "Product id", example = "1")
+                                          Long id){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

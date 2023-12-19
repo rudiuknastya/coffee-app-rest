@@ -10,7 +10,7 @@ import project.validation.phoneNumberValidation.FieldPhoneUnique;
 
 public class UserRequest {
     @NotEmpty(message = "Поле не може бути порожнім")
-    @Size(max=25, message = "Розмір паролю має бути не більше 25 символів")
+    @Size(max=25, message = "Розмір поля має бути не більше 25 символів")
     @Schema(example = "Вікторія", required = true)
     private String name;
     @NotEmpty(message = "Поле не може бути порожнім ")
@@ -20,12 +20,12 @@ public class UserRequest {
     @Schema(example = "+380665742314", required = true)
     private String phoneNumber;
     @NotEmpty(message = "Поле не може бути порожнім ")
-    @Size(max=100, message = "Розмір паролю має бути не більше 100 символів")
+    @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
     @Email(regexp = "[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\\.[a-z]{2,3}", message = "Невірний формат email")
     @FieldEmailUnique
     @Schema(example = "user1@gmail.com", required = true)
     private String email;
-    @Size(max=100, message = "Розмір паролю має бути не більше 100 символів")
+    @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
     @Pattern.List({
             @Pattern(regexp = ".{8,}", message = "Пароль має мати принаймні одну цифру, одну велику літеру, один спецсимвол ,./? та розмір більше 8"),
             @Pattern(regexp = ".*\\d+.*", message = "Пароль має мати принаймні одну цифру, одну велику літеру, один спецсимвол ,./? та розмір більше 8"),

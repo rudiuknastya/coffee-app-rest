@@ -1,13 +1,20 @@
 package project.model.orderModel;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class OrderResponse {
+    @Schema(example = "1", required = true)
     private Long id;
+    @Schema(example = "2023-01-14", required = true)
     private LocalDate orderDate;
+    @Schema(example = "100", required = true)
     private BigDecimal price;
+    @Schema(example = "Київ", required = true)
     private String locationCity;
+    @Schema(example = "вул.Хрещатик 1", required = true)
     private String locationAddress;
 
     public Long getId() {
