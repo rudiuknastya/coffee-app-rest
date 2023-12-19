@@ -2,6 +2,7 @@ package project.controller;
 
 import com.sendgrid.Response;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -42,7 +43,7 @@ public class AuthenticationController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Operation(summary = "Register user")
+    @Operation(summary = "User registration",description = "Register user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = AuthenticationResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Failed validation",content = {@Content(mediaType = "application/json",schema = @Schema())})})
@@ -50,7 +51,7 @@ public class AuthenticationController {
     ResponseEntity<AuthenticationResponse> registerUser(@Valid @RequestBody UserRequest userRequest){
         return new ResponseEntity<>(authenticationService.register(userRequest),HttpStatus.CREATED);
     }
-    @Operation(summary = "Authenticate user")
+    @Operation(summary = "User authentication",description = "Authenticate user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = AuthenticationResponse.class))}),
             @ApiResponse(responseCode = "403", description = "Wrong email or password",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -59,7 +60,7 @@ public class AuthenticationController {
     ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody AuthenticationRequest authenticationRequest){
         return ResponseEntity.ok(authenticationService.authenticate(authenticationRequest));
     }
-    @Operation(summary = "Get new access token by refresh token")
+    @Operation(summary = "Refresh access token",description = "Get new access token by refresh token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = AuthenticationResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Not found user by refresh token",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -76,7 +77,7 @@ public class AuthenticationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @Operation(summary = "Sending email to user to change password")
+    @Operation(summary = "Sending email to user to change password",description = "Request email and send password reset token to this email")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = String.class))}),
             @ApiResponse(responseCode = "404", description = "User with such email not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -95,13 +96,15 @@ public class AuthenticationController {
         }
         return new ResponseEntity<>(mailService.sendToken(token,emailRequest.getEmail(),httpRequest),HttpStatus.OK);
     }
-    @Operation(summary = "Change password")
+    @Operation(summary = "Change password", description = "Set new password after user received email with password reset token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json")}),
             @ApiResponse(responseCode = "400", description = "Failed password validation",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "Password reset token expired",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/changePassword")
-    ResponseEntity<?> changePassword( @RequestParam("token") String token,@Valid @RequestBody ChangePasswordRequest changePasswordRequest){
+    ResponseEntity<?> changePassword(@Parameter(name = "token", description = "Password reset token", example = "b8aa464c-7375-464e-9d8f-83cdae970921")
+                                     @RequestParam("token") String token,
+                                     @Valid @RequestBody ChangePasswordRequest changePasswordRequest){
         if(passwordResetTokenService.validatePasswordResetToken(token)){
             String encodedPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
             PasswordResetToken passwordResetToken = passwordResetTokenService.getPasswordResetToken(token);

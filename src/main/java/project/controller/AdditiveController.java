@@ -1,6 +1,7 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,13 +28,15 @@ public class AdditiveController {
     public AdditiveController(AdditiveService additiveService) {
         this.additiveService = additiveService;
     }
-    @Operation(summary = "Get additives by additive type id")
+    @Operation(summary = "Get additives by additive type id",description = "Get additives by additive type id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = AdditiveDTO.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/additives/{additiveTypeId}")
-    ResponseEntity<List<AdditiveDTO>> getAdditivesForAdditiveType(@PathVariable("additiveTypeId")Long additiveTypeId){
+    ResponseEntity<List<AdditiveDTO>> getAdditivesForAdditiveType( @PathVariable("additiveTypeId")
+                                                                   @Parameter(name = "additiveTypeId", description = "Additive type id", example = "1")
+                                                                   Long additiveTypeId){
         List<AdditiveDTO> additiveDTOS = additiveService.getAdditiveDTOsByAdditiveTypeId(additiveTypeId);
         return new ResponseEntity<>(additiveDTOS, HttpStatus.OK);
     }
