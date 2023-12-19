@@ -1,6 +1,8 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,8 +20,7 @@ import java.util.List;
 @Tag(name = "Additive")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
-@RequestMapping(value = "/api/v1",produces = {"application/json"},
-        consumes = {"application/json"})
+@RequestMapping( "/api/v1")
 public class AdditiveController {
     private final AdditiveService additiveService;
 
@@ -28,16 +29,12 @@ public class AdditiveController {
     }
     @Operation(summary = "Get additives by additive type id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "401", description = "User unauthorized"),
-            @ApiResponse(responseCode = "404", description = "Additives not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")})
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = AdditiveDTO.class))}),
+            @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/additives/{additiveTypeId}")
-    ResponseEntity<?> getAdditivesForAdditiveType(@PathVariable("additiveTypeId")Long additiveTypeId){
+    ResponseEntity<List<AdditiveDTO>> getAdditivesForAdditiveType(@PathVariable("additiveTypeId")Long additiveTypeId){
         List<AdditiveDTO> additiveDTOS = additiveService.getAdditiveDTOsByAdditiveTypeId(additiveTypeId);
-        if(additiveDTOS.size() == 0){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(additiveDTOS, HttpStatus.OK);
     }
 }

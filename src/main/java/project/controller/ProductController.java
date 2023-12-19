@@ -1,6 +1,8 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,8 +25,7 @@ import project.service.ProductService;
 @Tag(name = "Product")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
-@RequestMapping(value = "/api/v1",produces = {"application/json"},
-        consumes = {"application/json"})
+@RequestMapping( "/api/v1")
 public class ProductController {
     private final ProductService productService;
 
@@ -33,10 +34,9 @@ public class ProductController {
     }
     @Operation(summary = "Get products for category")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "401", description = "User unauthorized"),
-            @ApiResponse(responseCode = "404", description = "Products not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")})
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ProductResponse.class))}),
+            @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/products/{categoryId}")
     ResponseEntity<?> getProductsForCategory(@PathVariable("categoryId")Long categoryId, PageableDTO pageableDTO){
         Pageable pageable;
@@ -54,10 +54,10 @@ public class ProductController {
 
     @Operation(summary = "Get product with additive types by id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "401", description = "User unauthorized"),
-            @ApiResponse(responseCode = "404", description = "Product not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")})
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ProductDTO.class))}),
+            @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "404", description = "Product not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/product/{id}")
     ResponseEntity<ProductDTO> getProduct(@PathVariable("id")Long id){
         if(id < 1){

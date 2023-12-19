@@ -1,6 +1,8 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,8 +24,7 @@ import project.service.CategoryService;
 @Tag(name = "Category")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
-@RequestMapping(value = "/api/v1",produces = {"application/json"},
-        consumes = {"application/json"})
+@RequestMapping( "/api/v1")
 public class CategoryController {
     private final CategoryService categoryService;
     public CategoryController(CategoryService categoryService) {
@@ -31,10 +32,9 @@ public class CategoryController {
     }
     @Operation(summary = "Get categories")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "401", description = "User unauthorized"),
-            @ApiResponse(responseCode = "404", description = "Categories not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")})
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = CategoryResponse.class))}),
+            @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/categories")
     ResponseEntity<?> getCategories(PageableDTO pageableDTO){
         Pageable pageable;
@@ -47,9 +47,6 @@ public class CategoryController {
         }
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         Page<CategoryResponse> categoryResponses = categoryService.getCategoryResponses(pageable);
-        if(categoryResponses.getContent().size() == 0){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(categoryResponses, HttpStatus.OK);
     }
 }

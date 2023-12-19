@@ -45,12 +45,12 @@ public class ValidationExceptionHandler {
     }
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> notValid(EntityNotFoundException ex, HttpServletRequest request) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<?> expiredJwt(ExpiredJwtException ex, HttpServletRequest request) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
     }
     @ExceptionHandler(MalformedJwtException.class)
