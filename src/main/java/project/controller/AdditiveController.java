@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.model.additiveModel.AdditiveDTO;
 import project.service.AdditiveService;
@@ -17,6 +18,7 @@ import java.util.List;
 @Tag(name = "Additive")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
+@RequestMapping("/api/v1")
 public class AdditiveController {
     private final AdditiveService additiveService;
 

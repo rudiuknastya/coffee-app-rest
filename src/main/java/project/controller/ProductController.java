@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.model.PageableDTO;
 import project.model.productModel.ProductDTO;
@@ -22,6 +23,7 @@ import project.service.ProductService;
 @Tag(name = "Product")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
+@RequestMapping("/api/v1")
 public class ProductController {
     private final ProductService productService;
 
@@ -46,9 +48,6 @@ public class ProductController {
         }
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         Page<ProductResponse> productResponses = productService.getProductsForCategory(categoryId,pageable);
-        if(productResponses.getContent().size() == 0){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(productResponses, HttpStatus.OK);
     }
 

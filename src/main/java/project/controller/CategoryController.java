@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import project.model.PageableDTO;
 import project.model.categoryModel.CategoryResponse;
@@ -21,6 +22,7 @@ import project.service.CategoryService;
 @Tag(name = "Category")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
+@RequestMapping("/api/v1")
 public class CategoryController {
     private final CategoryService categoryService;
     public CategoryController(CategoryService categoryService) {

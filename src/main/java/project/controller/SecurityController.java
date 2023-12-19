@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -26,21 +27,22 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-@Tag(name = "Security")
+@Tag(name = "Authentication")
 @RestController
+@RequestMapping("/api/v1")
 public class SecurityController {
     private final AuthenticationService authenticationService;
     private final PasswordResetTokenService passwordResetTokenService;
     private final UserService userService;
     private final MailService mailService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public SecurityController(AuthenticationService authenticationService, PasswordResetTokenService passwordResetTokenService, UserService userService, MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public SecurityController(AuthenticationService authenticationService, PasswordResetTokenService passwordResetTokenService, UserService userService, MailService mailService, PasswordEncoder passwordEncoder) {
         this.authenticationService = authenticationService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.userService = userService;
         this.mailService = mailService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Operation(summary = "Register user")
@@ -100,7 +102,7 @@ public class SecurityController {
     @PostMapping("/changePassword")
     ResponseEntity<?> changePassword( @RequestParam("token") String token,@Valid @RequestBody ChangePasswordRequest changePasswordRequest){
         if(passwordResetTokenService.validatePasswordResetToken(token)){
-            String encodedPassword = bCryptPasswordEncoder.encode(changePasswordRequest.getNewPassword());
+            String encodedPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
             PasswordResetToken passwordResetToken = passwordResetTokenService.getPasswordResetToken(token);
             passwordResetToken.getUser().setPassword(encodedPassword);
             passwordResetTokenService.savePasswordResetToken(passwordResetToken);

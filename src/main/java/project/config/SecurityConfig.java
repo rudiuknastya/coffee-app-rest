@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
@@ -34,7 +35,7 @@ public class SecurityConfig {
         http
                 .csrf((c)-> c.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(mvc.pattern("/"),mvc.pattern("/swagger-ui/**"), mvc.pattern("/v3/api-docs/**"), mvc.pattern("/register"), mvc.pattern("/login"),mvc.pattern("/refreshToken"),mvc.pattern("/forgotPassword"),mvc.pattern("/changePassword")).permitAll()
+                        .requestMatchers(mvc.pattern("/"),mvc.pattern("/swagger-ui/**"), mvc.pattern("/v3/api-docs/**"), mvc.pattern("/api/v1/register"), mvc.pattern("/api/v1/login"),mvc.pattern("/api/v1/refreshToken"),mvc.pattern("/api/v1/forgotPassword"),mvc.pattern("/api/v1/changePassword")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((sm)->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -44,7 +45,7 @@ public class SecurityConfig {
         return http.build();
     }
     @Bean
-    public static BCryptPasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
     @Bean

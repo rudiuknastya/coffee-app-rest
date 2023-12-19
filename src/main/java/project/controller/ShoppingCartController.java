@@ -23,6 +23,7 @@ import java.util.List;
 @Tag(name = "Shopping cart")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
+@RequestMapping("/api/v1")
 public class ShoppingCartController {
     private final ShoppingCartService shoppingCartService;
     private final UserService userService;

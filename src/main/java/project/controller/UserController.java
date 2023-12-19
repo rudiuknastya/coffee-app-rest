@@ -20,6 +20,7 @@ import project.service.UserService;
 @Tag(name = "Profile")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
     private final UserService userService;
 
