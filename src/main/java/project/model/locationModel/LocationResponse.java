@@ -12,7 +12,7 @@ public class LocationResponse {
     private String address;
     @Schema(example = "+380994657718", required = true)
     private String phoneNumber;
-    @Schema(example = "'пн-пт: 8:00-21:00\n" +
+    @Schema(example = "'пн-пт: 8:00-21:00 " +
             "сб-нд: 9:00-20:00'", required = true)
     private String workingHours;
 

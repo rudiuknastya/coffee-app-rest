@@ -1,6 +1,7 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,11 +35,11 @@ public class AwardController {
         this.awardService = awardService;
     }
 
-    @Operation(summary = "Get user awards")
+    @Operation(summary = "Get user awards", description = "Get user's awards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = AwardDTO.class))}),
-            @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
-            @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
+            @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json",schema = @Schema(implementation = AwardDTO.class))}),
+            @ApiResponse(responseCode = "401", description = "User unauthorized", content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/awards")
     ResponseEntity<?> getUserAwards(PageableDTO pageableDTO){
         Pageable pageable;
@@ -56,14 +57,16 @@ public class AwardController {
         Page<AwardDTO> awardDTOS = awardService.getAwards(email,pageable);
         return new ResponseEntity<>(awardDTOS, HttpStatus.OK);
     }
-    @Operation(summary = "Add award to shopping cart")
+    @Operation(summary = "Add award to shopping cart", description = "Adding award to shopping cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
-            @ApiResponse(responseCode = "404", description = "Product not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "404", description = "Award not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/awards/add/{id}")
-    ResponseEntity<?> addAwardToShoppingCart(@PathVariable Long id){
+    ResponseEntity<?> addAwardToShoppingCart(@PathVariable
+                                             @Parameter(name = "id", description = "Award id", example = "1")
+                                             Long id){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

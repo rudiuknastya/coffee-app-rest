@@ -30,7 +30,7 @@ public class CategoryController {
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
-    @Operation(summary = "Get categories")
+    @Operation(summary = "Get categories", description = "Get All categories")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = CategoryResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),

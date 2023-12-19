@@ -1,5 +1,6 @@
 package project.controller;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +32,7 @@ public class LocationController {
     public LocationController(LocationService locationService) {
         this.locationService = locationService;
     }
-    @Operation(summary = "Get location coordinates for showing locations on map")
+    @Operation(summary = "Get location coordinates",description = "Get location coordinates for showing locations on map")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = LocationCoordinatesDTO.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
@@ -41,20 +42,22 @@ public class LocationController {
         List<LocationCoordinatesDTO> locationCoordinatesDTOS = locationService.getLocationCoordinates();
         return new ResponseEntity<>(locationCoordinatesDTOS,HttpStatus.OK);
     }
-    @Operation(summary = "Get location by id")
+    @Operation(summary = "Get location by id",description = "Get location by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = LocationResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Location not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/location/{id}")
-    ResponseEntity<LocationResponse> getLocation(@PathVariable("id")Long id){
+    ResponseEntity<LocationResponse> getLocation(@PathVariable("id")
+                                                 @Parameter(name = "id", description = "Location id", example = "1")
+                                                 Long id){
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(locationService.getLocationResponseById(id),HttpStatus.OK);
     }
-    @Operation(summary = "Get locations list")
+    @Operation(summary = "Get locations list",description = "Get all locations")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = LocationAddressDTO.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
