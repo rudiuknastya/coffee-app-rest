@@ -22,7 +22,8 @@ import java.util.List;
 @Tag(name = "Location")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(value = "/api/v1",produces = {"application/json"},
+        consumes = {"application/json"})
 public class LocationController {
     private final LocationService locationService;
 

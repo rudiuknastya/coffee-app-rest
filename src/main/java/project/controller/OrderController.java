@@ -34,7 +34,8 @@ import java.util.List;
 @Tag(name = "Order")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(value = "/api/v1",produces = {"application/json"},
+        consumes = {"application/json"})
 public class OrderController {
     private final OrderService orderService;
     private final OrderItemService orderItemService;

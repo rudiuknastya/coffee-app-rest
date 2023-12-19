@@ -22,7 +22,8 @@ import project.service.CategoryService;
 @Tag(name = "Category")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(value = "/api/v1",produces = {"application/json"},
+        consumes = {"application/json"})
 public class CategoryController {
     private final CategoryService categoryService;
     public CategoryController(CategoryService categoryService) {

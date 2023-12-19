@@ -24,7 +24,8 @@ import project.service.ShoppingCartService;
 @RestController
 @Tag(name = "Award")
 @SecurityRequirement(name = "Bearer Authentication")
-@RequestMapping("/api/v1")
+@RequestMapping(value = "/api/v1",produces = {"application/json"},
+        consumes = {"application/json"})
 public class AwardController {
     private final AwardService awardService;
 
