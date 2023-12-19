@@ -1,5 +1,6 @@
 package project.serviceImpl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import project.repository.PasswordResetTokenRepository;
 import project.service.PasswordResetTokenService;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class PasswordResetTokenServiceImpl implements PasswordResetTokenService {
@@ -27,21 +29,16 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
     @Override
     public boolean validatePasswordResetToken(String token) {
         logger.info("validatePasswordResetToken() - Finding password reset token and validating it");
-        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token);
-        boolean b;
-        if(passwordResetToken == null || passwordResetToken.getExpirationDate().isBefore(LocalDateTime.now())){
-            b = false;
-        } else {
-            b = true;
-        }
+        Optional<PasswordResetToken> passwordResetToken = passwordResetTokenRepository.findByToken(token);
+        boolean isValid = passwordResetToken.isPresent() && !passwordResetToken.get().getExpirationDate().isBefore(LocalDateTime.now());
         logger.info("validatePasswordResetToken() - Password reset token was found and validated");
-        return b;
+        return isValid;
     }
 
     @Override
     public PasswordResetToken getPasswordResetToken(String token) {
         logger.info("getPasswordResetToken() - Finding password reset token");
-        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token);
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token).orElseThrow(()-> new EntityNotFoundException("Password reset token not found"));
         logger.info("getPasswordResetToken() - Password reset token was found");
         return passwordResetToken;
     }

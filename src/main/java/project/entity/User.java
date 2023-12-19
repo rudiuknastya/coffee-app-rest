@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class User implements UserDetails {
     private Long id;
     @Column(nullable = false)
     private String name;
-    @Column(name = "phone_number", columnDefinition="VARCHAR(20) NOT NULL UNIQUE")
+    @Column(name = "phone_number",length = 20, nullable = false, unique = true)
     private String phoneNumber;
     @Column(name = "birth_date", columnDefinition="DATE")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -43,7 +44,7 @@ public class User implements UserDetails {
             joinColumns = { @JoinColumn(name = "user_id") },
             inverseJoinColumns = { @JoinColumn(name = "product_id") }
     )
-    private List<Product> products;
+    private List<Product> products = new ArrayList<>();
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private ShoppingCart shoppingCart;
     @OneToMany(mappedBy = "user")

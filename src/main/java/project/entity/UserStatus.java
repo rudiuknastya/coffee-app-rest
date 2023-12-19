@@ -1,13 +1,13 @@
 package project.entity;
 
 public enum UserStatus {
-    NEW("Новий"), ACTIVE("Активний"), BLOCKED("Заблокований");
-
+    NEW("Новий"),
+    ACTIVE("Активний"),
+    BLOCKED("Заблокований");
+    private final String statusName;
     UserStatus(String statusName) {
         this.statusName = statusName;
     }
-
-    private String statusName;
 
     public String getStatusName() {
         return statusName;

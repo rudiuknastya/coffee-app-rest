@@ -17,7 +17,7 @@ public class EmailExistValidator implements ConstraintValidator<EmailExist,Strin
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
         Optional<User> user = userRepository.findByEmail(s);
         System.out.println(user);
-        if(!user.isPresent()){
+        if(user.isPresent()){
             return false;
         }
         return true;
