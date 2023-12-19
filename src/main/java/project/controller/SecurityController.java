@@ -1,6 +1,7 @@
 package project.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,6 +57,7 @@ public class SecurityController {
     @Operation(summary = "Authenticate user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "403", description = "Wrong email or password"),
             @ApiResponse(responseCode = "400", description = "Failed validation")})
     @PostMapping("/login")
     ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody AuthenticationRequest authenticationRequest){
@@ -65,9 +67,12 @@ public class SecurityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Not found user by refresh token"),
-            @ApiResponse(responseCode = "400", description = "Failed validation")})
+            @ApiResponse(responseCode = "401", description = "Wrong refresh token"),})
     @PostMapping("/refreshToken")
-    ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshToken refreshToken){
+    ResponseEntity<?> refreshToken(@RequestBody RefreshToken refreshToken){
+        if(refreshToken.getRefreshToken().equals("")){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         AuthenticationResponse authenticationResponse = authenticationService.refreshToken(refreshToken);
         if (authenticationResponse != null) {
             return new ResponseEntity<>(authenticationResponse, HttpStatus.OK);
@@ -98,7 +103,7 @@ public class SecurityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Failed password validation"),
-            @ApiResponse(responseCode = "404", description = "Token expired")})
+            @ApiResponse(responseCode = "401", description = "Password reset token expired")})
     @PostMapping("/changePassword")
     ResponseEntity<?> changePassword( @RequestParam("token") String token,@Valid @RequestBody ChangePasswordRequest changePasswordRequest){
         if(passwordResetTokenService.validatePasswordResetToken(token)){
@@ -108,7 +113,7 @@ public class SecurityController {
             passwordResetTokenService.savePasswordResetToken(passwordResetToken);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 

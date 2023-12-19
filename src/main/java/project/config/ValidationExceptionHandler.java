@@ -1,5 +1,7 @@
 package project.config;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -44,6 +46,16 @@ public class ValidationExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> notValid(EntityNotFoundException ex, HttpServletRequest request) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+
+    }
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<?> expiredJwt(ExpiredJwtException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+
+    }
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<?> notValidJwt(MalformedJwtException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
 
     }
 }
