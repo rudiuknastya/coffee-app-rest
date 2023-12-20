@@ -1,9 +1,12 @@
 package project.config;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,9 +15,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ResponseStatusException;
 import project.service.JwtService;
 
 import java.io.IOException;
+import java.io.OutputStream;
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
     private final JwtService jwtService;
@@ -26,16 +32,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) {
         String authHeader = request.getHeader("Authorization");
+        String requestUri = request.getRequestURI();
+        if(authHeader == null && !requestUri.contains("/swagger-ui") && !requestUri.contains("/v3/api-docs")&&
+                !requestUri.equals("/api/v1/register") && !requestUri.equals("/api/v1/login")&&
+                !requestUri.equals("/api/v1/refreshToken") && !requestUri.equals("/api/v1/forgotPassword")&&
+                !requestUri.equals("/api/v1/changePassword") && !requestUri.equals("/")){
+            onFailedAuthentication(request,response);
+            return;
+        }
         String jwt;
         String email;
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            filterChain.doFilter(request,response);
+            try {
+                filterChain.doFilter(request,response);
+            } catch (IOException | ServletException ex) {
+                onFailedAuthentication(request,response);
+            }
             return;
         }
         jwt = authHeader.substring(7);
-        email = jwtService.extractUserEmail(jwt);
+        try {
+            email = jwtService.extractUserEmail(jwt);
+        } catch (ExpiredJwtException ex){
+            onFailedAuthentication(request,response);
+            return;
+        }
         if(email != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             if(jwtService.isTokenValid(jwt,userDetails)){
@@ -44,6 +67,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
-        filterChain.doFilter(request,response);
+        try {
+            filterChain.doFilter(request,response);
+        } catch (IOException | ServletException ex) {
+            onFailedAuthentication(request,response);
+        }
+    }
+    protected void onFailedAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+
+        try (OutputStream out = response.getOutputStream()) {
+            out.flush();
+        } catch (IOException e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
     }
 }
