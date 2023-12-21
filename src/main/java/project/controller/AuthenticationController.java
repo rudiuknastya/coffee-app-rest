@@ -31,16 +31,12 @@ import java.util.UUID;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final PasswordResetTokenService passwordResetTokenService;
-    private final UserService userService;
     private final MailService mailService;
-    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationController(AuthenticationService authenticationService, PasswordResetTokenService passwordResetTokenService, UserService userService, MailService mailService, PasswordEncoder passwordEncoder) {
+    public AuthenticationController(AuthenticationService authenticationService, PasswordResetTokenService passwordResetTokenService, MailService mailService) {
         this.authenticationService = authenticationService;
         this.passwordResetTokenService = passwordResetTokenService;
-        this.userService = userService;
         this.mailService = mailService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Operation(summary = "User registration",description = "Register user")
@@ -84,16 +80,7 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "400", description = "Failed validation",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/forgotPassword")
     ResponseEntity<?> forgotPassword(HttpServletRequest httpRequest,@Valid @RequestBody EmailRequest emailRequest){
-        User user = userService.getUserWithPasswordResetTokenByEmail(emailRequest.getEmail());
-        String token = UUID.randomUUID().toString();
-        if(user.getPasswordResetToken() != null){
-            user.getPasswordResetToken().setToken(token);
-            user.getPasswordResetToken().setExpirationDate();
-            userService.saveUser(user);
-        } else {
-            PasswordResetToken passwordResetToken = new PasswordResetToken(token, user);
-            passwordResetTokenService.savePasswordResetToken(passwordResetToken);
-        }
+        String token = passwordResetTokenService.createOrUpdatePasswordResetToken(emailRequest);
         return new ResponseEntity<>(mailService.sendToken(token,emailRequest.getEmail(),httpRequest),HttpStatus.OK);
     }
     @Operation(summary = "Change password", description = "Set new password after user received email with password reset token")
@@ -106,10 +93,7 @@ public class AuthenticationController {
                                      @RequestParam("token") String token,
                                      @Valid @RequestBody ChangePasswordRequest changePasswordRequest){
         if(passwordResetTokenService.validatePasswordResetToken(token)){
-            String encodedPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
-            PasswordResetToken passwordResetToken = passwordResetTokenService.getPasswordResetToken(token);
-            passwordResetToken.getUser().setPassword(encodedPassword);
-            passwordResetTokenService.savePasswordResetToken(passwordResetToken);
+            passwordResetTokenService.updatePassword(changePasswordRequest, token);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

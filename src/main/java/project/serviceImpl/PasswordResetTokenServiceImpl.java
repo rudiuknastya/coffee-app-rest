@@ -3,29 +3,33 @@ package project.serviceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.entity.PasswordResetToken;
+import project.entity.User;
+import project.model.authenticationModel.ChangePasswordRequest;
+import project.model.authenticationModel.EmailRequest;
 import project.repository.PasswordResetTokenRepository;
+import project.repository.UserRepository;
 import project.service.PasswordResetTokenService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PasswordResetTokenServiceImpl implements PasswordResetTokenService {
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
-
-    public PasswordResetTokenServiceImpl(PasswordResetTokenRepository passwordResetTokenRepository) {
-        this.passwordResetTokenRepository = passwordResetTokenRepository;
-    }
     private Logger logger = LogManager.getLogger("serviceLogger");
-    @Override
-    public PasswordResetToken savePasswordResetToken(PasswordResetToken passwordResetToken) {
-        logger.info("savePasswordResetToken() - Saving password reset token");
-        PasswordResetToken passwordResetToken1 = passwordResetTokenRepository.save(passwordResetToken);
-        logger.info("savePasswordResetToken() - Password reset token was saved");
-        return passwordResetToken1;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public PasswordResetTokenServiceImpl(PasswordResetTokenRepository passwordResetTokenRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
     @Override
     public boolean validatePasswordResetToken(String token) {
         logger.info("validatePasswordResetToken() - Finding password reset token and validating it");
@@ -35,12 +39,28 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
         return isValid;
     }
 
+
     @Override
-    public PasswordResetToken getPasswordResetToken(String token) {
-        logger.info("getPasswordResetToken() - Finding password reset token");
+    public void updatePassword(ChangePasswordRequest changePasswordRequest, String token) {
+        logger.info("updatePassword() - Updating password");
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token).orElseThrow(()-> new EntityNotFoundException("Password reset token not found"));
-        logger.info("getPasswordResetToken() - Password reset token was found");
-        return passwordResetToken;
+        passwordResetToken.getUser().setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        passwordResetTokenRepository.save(passwordResetToken);
+        logger.info("updatePassword() - Password was updated");
     }
 
+    @Override
+    public String createOrUpdatePasswordResetToken(EmailRequest emailRequest) {
+        User user = userRepository.findWithPasswordResetTokenByEmail(emailRequest.getEmail()).orElseThrow(()-> new EntityNotFoundException("User was not found by email "+emailRequest.getEmail()));
+        String token = UUID.randomUUID().toString();
+        if(user.getPasswordResetToken() != null){
+            user.getPasswordResetToken().setToken(token);
+            user.getPasswordResetToken().setExpirationDate();
+            userRepository.save(user);
+        } else {
+            PasswordResetToken passwordResetToken = new PasswordResetToken(token, user);
+            passwordResetTokenRepository.save(passwordResetToken);
+        }
+        return token;
+    }
 }

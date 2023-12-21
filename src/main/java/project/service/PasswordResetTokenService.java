@@ -1,9 +1,11 @@
 package project.service;
 
 import project.entity.PasswordResetToken;
+import project.model.authenticationModel.ChangePasswordRequest;
+import project.model.authenticationModel.EmailRequest;
 
 public interface PasswordResetTokenService {
-    PasswordResetToken savePasswordResetToken(PasswordResetToken passwordResetToken);
     boolean validatePasswordResetToken(String token);
-    PasswordResetToken getPasswordResetToken(String token);
+    void updatePassword(ChangePasswordRequest changePasswordRequest, String token);
+    String createOrUpdatePasswordResetToken(EmailRequest emailRequest);
 }
