@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,7 +24,7 @@ public class Additive {
     private AdditiveType additiveType;
     @ManyToMany(mappedBy = "additives")
     @JsonIgnore
-    private List<OrderItem> orderItems;
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     public List<OrderItem> getOrderItems() {
         return orderItems;

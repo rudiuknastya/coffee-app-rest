@@ -3,6 +3,7 @@ package project.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,7 +30,7 @@ public class Product {
             joinColumns = { @JoinColumn(name = "product_id") },
             inverseJoinColumns = { @JoinColumn(name = "additive_type_id") }
     )
-    private List<AdditiveType> additiveTypes;
+    private List<AdditiveType> additiveTypes = new ArrayList<>();
     @ManyToMany(mappedBy = "products")
     private List<User> users;
 

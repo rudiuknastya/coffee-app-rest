@@ -3,6 +3,7 @@ package project.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,7 +28,7 @@ public class ShoppingCartItem {
             joinColumns = {@JoinColumn(name = "shopping_cart_item_id")},
             inverseJoinColumns = {@JoinColumn(name = "additive_id")}
     )
-    private List<Additive> additives;
+    private List<Additive> additives = new ArrayList<>();
 
     public Long getId() {
         return id;
