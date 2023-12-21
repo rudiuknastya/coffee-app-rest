@@ -37,16 +37,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/categories")
     ResponseEntity<?> getCategories(PageableDTO pageableDTO){
-        Pageable pageable;
-        Sort sort;
-        if(pageableDTO.getSortDirection().equals("DESC")){
-            sort = Sort.by(pageableDTO.getSortField()).descending();
-        }
-        else{
-            sort = Sort.by(pageableDTO.getSortField()).ascending();
-        }
-        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        Page<CategoryResponse> categoryResponses = categoryService.getCategoryResponses(pageable);
+        Page<CategoryResponse> categoryResponses = categoryService.getCategoryResponses(pageableDTO);
         return new ResponseEntity<>(categoryResponses, HttpStatus.OK);
     }
 }
