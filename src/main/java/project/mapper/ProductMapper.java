@@ -1,8 +1,10 @@
 package project.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import project.entity.AdditiveType;
 import project.entity.Product;
 import project.model.additiveTypeModel.AdditiveTypeDTO;
@@ -18,26 +20,18 @@ public interface ProductMapper {
     ProductMapper PRODUCT_MAPPER = Mappers.getMapper(ProductMapper.class);
     List<ProductResponse> productListToProductResponseList(List<Product> products);
     List<AwardDTO> productListToAwardDTOList(List<Product> products);
-    @Named("productToProductDTO")
-    static ProductDTO productToProductDTO(Product product){
-        if(product == null){
-            return null;
-        }
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(product.getId());
-        productDTO.setName(product.getName());
-        productDTO.setDescription(product.getDescription());
-        productDTO.setImage(product.getImage());
+    @Mapping(target = "image", expression = "java(createImageUrl(product))")
+    AwardDTO productToAwardDTO(Product product);
+    default String createImageUrl(Product product){
+        final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        return baseUrl+"/uploads/"+product.getImage();
+    }
+    ProductDTO productToProductDTO(Product product);
+    default List<AdditiveTypeDTO> createAdditiveDTOList(Product product){
         if(product.getAdditiveTypes() != null){
-            List<AdditiveTypeDTO> additiveTypeDTOS = new ArrayList<>(product.getAdditiveTypes().size());
-            for(AdditiveType additiveType: product.getAdditiveTypes()){
-                AdditiveTypeDTO additiveTypeDTO = new AdditiveTypeDTO();
-                additiveTypeDTO.setId(additiveType.getId());
-                additiveTypeDTO.setName(additiveType.getName());
-                additiveTypeDTOS.add(additiveTypeDTO);
-            }
-            productDTO.setAdditiveTypes(additiveTypeDTOS);
+            return AdditiveTypeMapper.ADDITIVE_TYPE_MAPPER.additiveToAdditiveTypeDTO(product.getAdditiveTypes());
+        } else {
+            return new ArrayList<>();
         }
-        return productDTO;
     }
 }

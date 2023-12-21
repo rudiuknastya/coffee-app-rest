@@ -42,19 +42,10 @@ public class AwardController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/awards")
     ResponseEntity<?> getUserAwards(PageableDTO pageableDTO){
-        Pageable pageable;
-        Sort sort;
-        if(pageableDTO.getSortDirection().equals("DESC")){
-            sort = Sort.by(pageableDTO.getSortField()).descending();
-        }
-        else{
-            sort = Sort.by(pageableDTO.getSortField()).ascending();
-        }
-        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        Page<AwardDTO> awardDTOS = awardService.getAwards(email,pageable);
+        Page<AwardDTO> awardDTOS = awardService.getAwards(email,pageableDTO);
         return new ResponseEntity<>(awardDTOS, HttpStatus.OK);
     }
     @Operation(summary = "Add award to shopping cart", description = "Adding award to shopping cart")
