@@ -64,16 +64,7 @@ public class LocationController {
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/locationsList")
     ResponseEntity<?> getLocationAddresses(PageableDTO pageableDTO){
-        Pageable pageable;
-        Sort sort;
-        if(pageableDTO.getSortDirection().equals("DESC")){
-            sort = Sort.by(pageableDTO.getSortField()).descending();
-        }
-        else{
-            sort = Sort.by(pageableDTO.getSortField()).ascending();
-        }
-        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        Page<LocationAddressDTO> locationAddressDTOS = locationService.getLocationAddresses(pageable);
+        Page<LocationAddressDTO> locationAddressDTOS = locationService.getLocationAddresses(pageableDTO);
         return new ResponseEntity<>(locationAddressDTOS, HttpStatus.OK);
     }
 

@@ -3,12 +3,11 @@ package project.serviceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import project.entity.Location;
 import project.mapper.LocationMapper;
+import project.model.PageableDTO;
 import project.model.locationModel.LocationAddressDTO;
 import project.model.locationModel.LocationCoordinatesDTO;
 import project.model.locationModel.LocationResponse;
@@ -44,8 +43,17 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Page<LocationAddressDTO> getLocationAddresses(Pageable pageable) {
-        logger.info("getLocationAddresses() - Finding locations for location address dto for page "+pageable.getPageNumber());
+    public Page<LocationAddressDTO> getLocationAddresses(PageableDTO pageableDTO) {
+        logger.info("getLocationAddresses() - Finding locations for location address dto for page "+pageableDTO.getPage());
+        Pageable pageable;
+        Sort sort;
+        if(pageableDTO.getSortDirection().equals("DESC")){
+            sort = Sort.by(pageableDTO.getSortField()).descending();
+        }
+        else{
+            sort = Sort.by(pageableDTO.getSortField()).ascending();
+        }
+        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         Page<Location> locations = locationRepository.findAll(byDeleted(),pageable);
         List<LocationAddressDTO> locationAddressDTOS = LocationMapper.LOCATION_MAPPER.locationListToLocationAddressDTOList(locations.getContent());
         Page<LocationAddressDTO> locationAddressDTOPage = new PageImpl<>(locationAddressDTOS,pageable,locations.getTotalElements());
