@@ -19,13 +19,12 @@ import java.util.List;
 public interface ProductMapper {
     ProductMapper PRODUCT_MAPPER = Mappers.getMapper(ProductMapper.class);
     List<ProductResponse> productListToProductResponseList(List<Product> products);
+    @Mapping(target = "image", expression = "java(createImageUrl(product))")
+    ProductResponse productToProductResponse(Product product);
     List<AwardDTO> productListToAwardDTOList(List<Product> products);
     @Mapping(target = "image", expression = "java(createImageUrl(product))")
     AwardDTO productToAwardDTO(Product product);
-    default String createImageUrl(Product product){
-        final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        return baseUrl+"/uploads/"+product.getImage();
-    }
+    @Mapping(target = "image", expression = "java(createImageUrl(product))")
     ProductDTO productToProductDTO(Product product);
     default List<AdditiveTypeDTO> createAdditiveDTOList(Product product){
         if(product.getAdditiveTypes() != null){
@@ -33,5 +32,9 @@ public interface ProductMapper {
         } else {
             return new ArrayList<>();
         }
+    }
+    default String createImageUrl(Product product){
+        final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        return baseUrl+"/uploads/"+product.getImage();
     }
 }

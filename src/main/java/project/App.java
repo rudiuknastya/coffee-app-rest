@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 @OpenAPIDefinition(
-        info = @Info(title = "Coffee-app Rest Api",description = "Coffee-app Rest Api documentation",version = "v1"),
-        servers = {@Server(url = "/Coffee_App_A_Rudiuk_Rest/", description = "Default Server URL")}
+        info = @Info(title = "Coffee-app Rest Api",description = "Coffee-app Rest Api documentation",version = "v1")
+        //servers = {@Server(url = "/Coffee_App_A_Rudiuk_Rest/", description = "Default Server URL")}
 )
 @SpringBootApplication
 @EnableAsync

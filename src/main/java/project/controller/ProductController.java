@@ -42,16 +42,8 @@ public class ProductController {
     ResponseEntity<?> getProductsForCategory(@PathVariable("categoryId")
                                              @Parameter(name = "categoryId", description = "Category id", example = "1")
                                              Long categoryId, PageableDTO pageableDTO){
-        Pageable pageable;
-        Sort sort;
-        if(pageableDTO.getSortDirection().equals("DESC")){
-            sort = Sort.by(pageableDTO.getSortField()).descending();
-        }
-         else{
-            sort = Sort.by(pageableDTO.getSortField()).ascending();
-        }
-        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        Page<ProductResponse> productResponses = productService.getProductsForCategory(categoryId,pageable);
+
+        Page<ProductResponse> productResponses = productService.getProductsForCategory(categoryId,pageableDTO);
         return new ResponseEntity<>(productResponses, HttpStatus.OK);
     }
 
