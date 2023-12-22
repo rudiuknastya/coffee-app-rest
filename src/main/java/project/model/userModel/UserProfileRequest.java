@@ -32,10 +32,10 @@ import java.time.LocalDate;
         id = "id",
         phoneNumber = "phoneNumber"
 )
-@NotEmptyOldPassword(
-        oldPassword = "oldPassword",
-        newPassword = "newPassword"
-)
+//@NotEmptyOldPassword(
+//        oldPassword = "oldPassword",
+//        newPassword = "newPassword"
+//)
 public class UserProfileRequest {
     @Schema(example = "1", required = true)
     private Long id;
