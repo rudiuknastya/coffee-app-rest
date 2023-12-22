@@ -42,7 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse register(UserRequest userRequest) {
-        User user = UserMapper.userRequestToUser(userRequest);
+        User user = UserMapper.USER_MAPPER.userRequestToUser(userRequest,Language.UKR,UserStatus.NEW,Role.USER);
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         List<Product> products = productRepository.findProductsForAward();
         List<Product> userProducts = new ArrayList<>(1);

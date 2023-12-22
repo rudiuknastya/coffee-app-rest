@@ -2,12 +2,15 @@ package project.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
 import project.entity.Language;
 import project.entity.Role;
 import project.entity.User;
 import project.entity.UserStatus;
 import project.model.userModel.LanguageResponse;
+import project.model.userModel.UserProfileRequest;
 import project.model.userModel.UserRequest;
 import project.model.userModel.UserResponse;
 
@@ -15,36 +18,24 @@ import java.time.LocalDate;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Named("userRequestToUser")
-    static User userRequestToUser(UserRequest userRequest){
-        if(userRequest == null){
-            return null;
-        }
-        User user = new User();
-        user.setName(userRequest.getName());
-        user.setPhoneNumber(userRequest.getPhoneNumber());
-        user.setEmail(userRequest.getEmail());
-        user.setRole(Role.USER);
-        user.setStatus(UserStatus.NEW);
-        user.setLanguage(Language.UKR);
-        user.setRegistrationDate(LocalDate.now());
-        user.setDeleted(false);
-        return user;
+    UserMapper USER_MAPPER = Mappers.getMapper(UserMapper.class);
+    @Mapping(target = "registrationDate", expression = "java(getDateNow())")
+    @Mapping(target = "deleted", expression = "java(false)")
+    @Mapping(target = "role", source = "userRole")
+    @Mapping(target = "status", source = "userStatus")
+    @Mapping(target = "language", source = "userLanguage")
+    User userRequestToUser(UserRequest userRequest, Language userLanguage, UserStatus userStatus, Role userRole);
+    default LocalDate getDateNow(){
+        return LocalDate.now();
     }
-    @Named("userToUserResponse")
-    static UserResponse userToUserResponse(User user){
-        if(user == null){
-            return null;
-        }
-        UserResponse userResponse = new UserResponse();
-        userResponse.setId(user.getId());
-        userResponse.setName(user.getName());
-        userResponse.setPhoneNumber(user.getPhoneNumber());
-        userResponse.setBirthDate(user.getBirthDate());
+    @Mapping(ignore = true, target = "id")
+    void setUserRequest(@MappingTarget User user, UserProfileRequest userProfileRequest);
+    @Mapping(target = "language", expression = "java(createLanguageResponse(user))")
+    UserResponse userToUserResponse(User user);
+    default LanguageResponse createLanguageResponse(User user) {
         LanguageResponse languageResponse = new LanguageResponse();
         languageResponse.setLanguageName(user.getLanguage().getLanguageName());
         languageResponse.setLanguage(user.getLanguage());
-        userResponse.setLanguage(languageResponse);
-        return userResponse;
+        return languageResponse;
     }
 }

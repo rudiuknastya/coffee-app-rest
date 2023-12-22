@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
         logger.info("getUserResponseByEmail() - Finding user for user response by email "+email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()->new EntityNotFoundException("User not found by email "+email));
-        UserResponse userResponse = UserMapper.userToUserResponse(user);
+        UserResponse userResponse = UserMapper.USER_MAPPER.userToUserResponse(user);
         logger.info("getUserResponseByEmail() - User for user response was found");
         return userResponse;
     }
@@ -43,7 +43,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Long id) {
         logger.info("getUserById() - Finding user by id "+id);
-        User user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        User user = userRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException("User not found by id "+id));
         logger.info("getUserById() - User was found");
         return user;
     }
@@ -68,14 +69,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(UserProfileRequest userProfileRequest) {
         logger.info("updateUser() - Updating user");
-        User user = userRepository.findById(userProfileRequest.getId()).orElseThrow(EntityNotFoundException::new);
-        user.setName(userProfileRequest.getName());
-        user.setPhoneNumber(userProfileRequest.getPhoneNumber());
-        user.setEmail(userProfileRequest.getEmail());
-        if(userProfileRequest.getBirthDate() !=null){
-            user.setBirthDate(userProfileRequest.getBirthDate());
-        }
-        user.setLanguage(userProfileRequest.getLanguage());
+        User user = userRepository.findById(userProfileRequest.getId()).orElseThrow(()->new EntityNotFoundException("User not found by id "+userProfileRequest.getId()));
+        UserMapper.USER_MAPPER.setUserRequest(user,userProfileRequest);
         if(!userProfileRequest.getOldPassword().equals("") && !userProfileRequest.getNewPassword().equals("") && !userProfileRequest.getConfirmNewPassword().equals("")){
             user.setPassword(passwordEncoder.encode(userProfileRequest.getNewPassword()));
         }
