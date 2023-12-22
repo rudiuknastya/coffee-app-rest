@@ -36,9 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         String authHeader = request.getHeader("Authorization");
         String requestUri = request.getRequestURI();
         if(authHeader == null && !requestUri.contains("/swagger-ui") && !requestUri.contains("/v3/api-docs")&&
-                !requestUri.equals("/api/v1/register") && !requestUri.equals("/api/v1/login")&&
-                !requestUri.equals("/api/v1/refreshToken") && !requestUri.equals("/api/v1/forgotPassword")&&
-                !requestUri.equals("/api/v1/changePassword") && !requestUri.equals("/")){
+                !requestUri.contains("/api/v1/register") && !requestUri.contains("/api/v1/login")&&
+                !requestUri.contains("/api/v1/refreshToken") && !requestUri.contains("/api/v1/forgotPassword")&&
+                !requestUri.contains("/api/v1/changePassword") && !requestUri.equals("/Coffee_App_A_Rudiuk_Rest/")){
             onFailedAuthentication(request,response);
             return;
         }
