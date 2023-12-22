@@ -10,29 +10,18 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import project.entity.*;
-import project.mapper.DeliveryMapper;
-import project.mapper.OrderItemMapper;
-import project.mapper.OrderMapper;
 import project.model.PageableDTO;
 import project.model.deliveryModel.DeliveryRequest;
 import project.model.orderItemModel.OrderItemResponse;
 import project.model.orderModel.OrderResponse;
-import project.model.orderModel.ReorderResponse;
 import project.service.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 @Tag(name = "Order")
 @SecurityRequirement(name = "Bearer Authentication")
@@ -102,19 +91,10 @@ public class OrderController {
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @GetMapping("/orders/history")
     ResponseEntity<?> getOrdersForOrderHistory(PageableDTO pageableDTO){
-        Pageable pageable;
-        Sort sort;
-        if(pageableDTO.getSortDirection().equals("DESC")){
-            sort = Sort.by(pageableDTO.getSortField()).descending();
-        }
-        else{
-            sort = Sort.by(pageableDTO.getSortField()).ascending();
-        }
-        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        Page<OrderResponse> orderResponses = orderService.getUserOrders(email,pageable);
+        Page<OrderResponse> orderResponses = orderService.getUserOrders(email,pageableDTO);
         return new ResponseEntity<>(orderResponses,HttpStatus.OK);
     }
     @Operation(summary = "Get order items",description = "Get order items for order in order history")
@@ -126,16 +106,7 @@ public class OrderController {
     ResponseEntity<?> getOrderItemsForOrderHistory(@PathVariable("orderId")
                                                    @Parameter(name = "orderId", description = "Order id", example = "1")
                                                    Long id, PageableDTO pageableDTO){
-        Pageable pageable;
-        Sort sort;
-        if(pageableDTO.getSortDirection().equals("DESC")){
-            sort = Sort.by(pageableDTO.getSortField()).descending();
-        }
-        else{
-            sort = Sort.by(pageableDTO.getSortField()).ascending();
-        }
-        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
-        Page<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemsByOrderId(id,pageable);
+        Page<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemsByOrderId(id,pageableDTO);
         return new ResponseEntity<>(orderItemResponses,HttpStatus.OK);
     }
     @Operation(summary = "Get order for reordering", description = "Get order with new prices for reordering")
@@ -151,13 +122,8 @@ public class OrderController {
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        orderService.getOrderById(id);
-        ReorderResponse reorderResponse = new ReorderResponse();
-        reorderResponse.setOrderId(id);
-        List<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemsWithAdditivesByOrderId(id);
-        reorderResponse.setOrderItemResponses(orderItemResponses);
-        reorderResponse.setPrice(orderService.getOrderPrice(id));
-        return new ResponseEntity<>(reorderResponse,HttpStatus.OK);
+        List<OrderItemResponse> orderItemResponses = orderItemService.getOrderItemResponsesForReorder(id);
+        return new ResponseEntity<>(orderService.createReorderResponse(id,orderItemResponses),HttpStatus.OK);
     }
     @Operation(summary = "Reorder order",description = "Reordering order")
     @ApiResponses(value = {
@@ -172,11 +138,8 @@ public class OrderController {
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Order order = orderService.getOrderById(id);
-        Order newOrder = OrderMapper.orderToNewOrder(order);
-        newOrder.setPrice(orderService.getOrderPrice(id));
-        Order savedOrder = orderService.saveOrder(newOrder);
-        orderItemService.saveNewOrderItems(order.getId(), savedOrder);
+        Order savedOrder = orderService.reorder(id);
+        orderItemService.saveNewOrderItems(savedOrder);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @Operation(summary = "Reorder order with delivery",description = "Reordering order with delivery")
@@ -193,19 +156,9 @@ public class OrderController {
         if(id < 1){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest);
-        Order order = orderService.getOrderById(id);
-        Order newOrder = OrderMapper.orderToNewOrder(order);
-        if(deliveryRequest.getCallBack()){
-            newOrder.setStatus(OrderStatus.CALL);
-        } else {
-            newOrder.setStatus(OrderStatus.ORDERED);
-        }
-        newOrder.setPrice(orderService.getOrderPrice(id));
-        Order savedOrder = orderService.saveOrder(newOrder);
-        delivery.setOrder(savedOrder);
-        deliveryService.saveDelivery(delivery);
-        orderItemService.saveNewOrderItems(order.getId(), savedOrder);
+
+        Order savedOrder = orderService.reorderWithDelivery(id,deliveryRequest);
+        orderItemService.saveNewOrderItems(savedOrder);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

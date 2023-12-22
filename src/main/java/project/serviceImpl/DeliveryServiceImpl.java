@@ -18,19 +18,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     private Logger logger = LogManager.getLogger("serviceLogger");
-    @Override
-    public Delivery saveDelivery(Delivery delivery) {
-        logger.info("saveDelivery() - Saving delivery");
-        Delivery delivery1 = deliveryRepository.save(delivery);
-        logger.info("saveDelivery() - Delivery was saved");
-        return delivery1;
-    }
 
     @Override
     public void createDelivery(DeliveryRequest deliveryRequest, Order order) {
         logger.info("createDelivery() - Creating delivery");
-        Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest);
-        delivery.setOrder(order);
+        Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest,order);
         deliveryRepository.save(delivery);
         logger.info("createDelivery() - Delivery was created");
     }
