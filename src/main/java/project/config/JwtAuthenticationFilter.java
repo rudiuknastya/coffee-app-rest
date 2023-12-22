@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String requestUri = request.getRequestURI();
         if(authHeader == null && !requestUri.contains("/swagger-ui") && !requestUri.contains("/v3/api-docs")&&
@@ -67,11 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
-        try {
-            filterChain.doFilter(request,response);
-        } catch (IOException | ServletException ex) {
-            onFailedAuthentication(request,response);
-        }
+        filterChain.doFilter(request,response);
     }
     protected void onFailedAuthentication(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
