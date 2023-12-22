@@ -49,11 +49,7 @@ public class AwardServiceImpl implements AwardService {
         }
         pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
         Page<Product> products = productRepository.findUserProducts(email,pageable);
-        final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         List<AwardDTO> awardDTOS = ProductMapper.PRODUCT_MAPPER.productListToAwardDTOList(products.getContent());
-//        for(AwardDTO award : awardDTOS){
-//            award.setImage(baseUrl+"/uploads/"+award.getImage());
-//        }
         Page<AwardDTO> awardDTOPage = new PageImpl<>(awardDTOS,pageable, products.getTotalElements());
         logger.info("getAwards() - User products for award dto were found");
         return awardDTOPage;
@@ -66,7 +62,7 @@ public class AwardServiceImpl implements AwardService {
         ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
         shoppingCartItem.setQuantity(1L);
         shoppingCartItem.setPrice(BigDecimal.valueOf(0));
-        Product product = productRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Product product = productRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Product for award was not found by id "+id));
         shoppingCartItem.setProduct(product);
         shoppingCartItem.setShoppingCart(shoppingCart);
         shoppingCartItemRepository.save(shoppingCartItem);

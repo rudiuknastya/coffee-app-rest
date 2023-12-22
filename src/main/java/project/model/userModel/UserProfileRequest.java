@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import project.entity.Language;
 import project.validation.confirmPassword.PasswordMatching;
 import project.validation.emailValidation.EmailUnique;
+import project.validation.newPasswordValidation.NewPasswordValid;
+import project.validation.notEmptyPasswordValidation.NotEmptyOldPassword;
 import project.validation.phoneNumberValidation.PhoneNumberUnique;
 import project.validation.validateOldPassword.OldPasswordMatching;
 
@@ -30,7 +32,10 @@ import java.time.LocalDate;
         id = "id",
         phoneNumber = "phoneNumber"
 )
-
+@NotEmptyOldPassword(
+        oldPassword = "oldPassword",
+        newPassword = "newPassword"
+)
 public class UserProfileRequest {
     @Schema(example = "1", required = true)
     private Long id;
@@ -51,10 +56,14 @@ public class UserProfileRequest {
     @Schema(example = "2000-02-15")
     private LocalDate birthDate;
     private Language language;
+    @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
     @Schema(example = "Password/1", required = true)
     private String oldPassword;
+    @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
+    @NewPasswordValid
     @Schema(example = "Password/2", required = true)
     private String newPassword;
+    @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
     @Schema(example = "Password/2", required = true)
     private String confirmNewPassword;
 
