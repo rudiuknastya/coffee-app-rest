@@ -5,29 +5,31 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import project.entity.User;
 import project.repository.UserRepository;
 
 public class OldPasswordMatchingValidator implements ConstraintValidator<OldPasswordMatching,Object> {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public OldPasswordMatchingValidator(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public OldPasswordMatchingValidator(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
     }
+
     private String id;
     private String oldPassword;
     @Override
     public boolean isValid(Object s, ConstraintValidatorContext constraintValidatorContext) {
         Object old = new BeanWrapperImpl(s).getPropertyValue(oldPassword);
-        if(old == null){
+        if(old == null || old.equals("")){
             return true;
         }
         Object idValue = new BeanWrapperImpl(s).getPropertyValue(id);
 
-        User user = userRepository.findById((Long)idValue).orElseThrow(EntityNotFoundException::new);
-        return bCryptPasswordEncoder.matches(old.toString(),user.getPassword());
+        User user = userRepository.findById((Long)idValue).orElseThrow(()-> new EntityNotFoundException("User was not found by id "+idValue));
+        return passwordEncoder.matches(old.toString(),user.getPassword());
     }
 
     @Override

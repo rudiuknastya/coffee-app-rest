@@ -32,6 +32,10 @@ import java.time.LocalDate;
         id = "id",
         phoneNumber = "phoneNumber"
 )
+@NotEmptyOldPassword(
+        oldPassword = "oldPassword",
+        newPassword = "newPassword"
+)
 public class UserProfileRequest {
     @Schema(example = "1", required = true)
     private Long id;
@@ -56,6 +60,7 @@ public class UserProfileRequest {
     @Schema(example = "Password/1", required = true)
     private String oldPassword;
     @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
+    @NewPasswordValid
     @Schema(example = "Password/2", required = true)
     private String newPassword;
     @Size(max=100, message = "Розмір поля має бути не більше 100 символів")
