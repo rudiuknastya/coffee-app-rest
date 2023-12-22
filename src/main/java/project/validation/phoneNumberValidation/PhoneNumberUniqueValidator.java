@@ -7,6 +7,8 @@ import project.entity.User;
 import project.model.userModel.UserProfileRequest;
 import project.repository.UserRepository;
 
+import java.util.Optional;
+
 public class PhoneNumberUniqueValidator implements ConstraintValidator<PhoneNumberUnique, Object> {
     private final UserRepository userRepository;
 
@@ -26,8 +28,8 @@ public class PhoneNumberUniqueValidator implements ConstraintValidator<PhoneNumb
     public boolean isValid(Object s, ConstraintValidatorContext constraintValidatorContext) {
         Object idValue = new BeanWrapperImpl(s).getPropertyValue(id);
         Object phoneValue = new BeanWrapperImpl(s).getPropertyValue(phoneNumber);
-        User user = userRepository.findByPhoneNumber(phoneValue.toString());
-        if(user != null && !user.getId().equals((Long) idValue)){
+        Optional<User> user = userRepository.findByPhoneNumber(phoneValue.toString());
+        if(user.isPresent() && !user.get().getId().equals((Long) idValue)){
             return false;
         }
         return true;

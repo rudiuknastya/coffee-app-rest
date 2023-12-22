@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-    User findByPhoneNumber(String phoneNumber);
+    Optional<User> findByPhoneNumber(String phoneNumber);
     @Query(value = "SELECT u FROM User u LEFT JOIN FETCH u.shoppingCart s WHERE u.email = :email")
     User findWithShoppingCartByEmail(@Param("email")String email);
     @Query(value = "SELECT u FROM User u LEFT JOIN FETCH u.passwordResetToken s WHERE u.email = :email")

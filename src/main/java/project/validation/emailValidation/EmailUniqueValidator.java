@@ -28,8 +28,8 @@ public class EmailUniqueValidator implements ConstraintValidator<EmailUnique, Ob
     public boolean isValid(Object s, ConstraintValidatorContext constraintValidatorContext) {
         Object idValue = new BeanWrapperImpl(s).getPropertyValue(id);
         Object emailValue = new BeanWrapperImpl(s).getPropertyValue(email);
-        User user = userRepository.findByEmail(emailValue.toString()).get();
-        if(user != null && !user.getId().equals((Long)idValue)){
+        Optional<User> user = userRepository.findByEmail(emailValue.toString());
+        if(user.isPresent() && !user.get().getId().equals((Long)idValue)){
             return false;
         }
         return true;

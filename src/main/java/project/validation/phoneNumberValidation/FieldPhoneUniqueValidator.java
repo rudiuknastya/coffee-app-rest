@@ -5,6 +5,8 @@ import jakarta.validation.ConstraintValidatorContext;
 import project.entity.User;
 import project.repository.UserRepository;
 
+import java.util.Optional;
+
 public class FieldPhoneUniqueValidator implements ConstraintValidator<FieldPhoneUnique, String> {
     private final UserRepository userRepository;
 
@@ -14,10 +16,7 @@ public class FieldPhoneUniqueValidator implements ConstraintValidator<FieldPhone
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        User user = userRepository.findByPhoneNumber(s);
-        if(user == null){
-            return true;
-        }
-        return false;
+        Optional<User> user = userRepository.findByPhoneNumber(s);
+        return user.isEmpty();
     }
 }
