@@ -5,19 +5,25 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import project.entity.Location;
 import project.entity.ShoppingCart;
+import project.entity.ShoppingCartItem;
 import project.mapper.ShoppingCartMapper;
 import project.model.shoppingCartModel.ShoppingCartPriceResponse;
+import project.model.shoppingCartModel.ShoppingCartResponse;
+import project.repository.ShoppingCartItemRepository;
 import project.repository.ShoppingCartRepository;
 import project.service.ShoppingCartService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
+    private final ShoppingCartItemRepository shoppingCartItemRepository;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, ShoppingCartItemRepository shoppingCartItemRepository) {
         this.shoppingCartRepository = shoppingCartRepository;
+        this.shoppingCartItemRepository = shoppingCartItemRepository;
     }
 
     private Logger logger = LogManager.getLogger("serviceLogger");
@@ -56,5 +62,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         shoppingCart.setLocation(location);
         shoppingCartRepository.save(shoppingCart);
         logger.info("setShoppingCartLocation() - Shopping cart location was set");
+    }
+
+    @Override
+    public ShoppingCartResponse getShoppingCartResponse(String email) {
+        logger.info("getShoppingCartResponse() - Finding shopping cart items for shopping cart response");
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUserEmail(email);
+        List<ShoppingCartItem> shoppingCartItems = shoppingCartItemRepository.findShoppingCartItemsWithAdditives(email);
+        ShoppingCartResponse shoppingCartResponse = ShoppingCartMapper.SHOPPING_CART_MAPPER.shoppingCartItemsToShoppingCartResponse(shoppingCartItems, shoppingCart);
+        logger.info("getShoppingCartResponse() - Shopping cart items were found");
+        return shoppingCartResponse;
     }
 }

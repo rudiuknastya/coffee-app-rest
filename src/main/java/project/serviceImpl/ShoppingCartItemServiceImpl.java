@@ -44,14 +44,6 @@ public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
         logger.info("saveShoppingCartItem() - Shopping cart item was saved");
         return shoppingCartItem1;
     }
-    @Override
-    public ShoppingCartResponse getShoppingCartResponse(String email) {
-        logger.info("getShoppingCartResponse() - Finding shopping cart items for shopping cart response");
-        List<ShoppingCartItem> shoppingCartItems = shoppingCartItemRepository.findShoppingCartItemsWithAdditives(email);
-        ShoppingCartResponse shoppingCartResponse = ShoppingCartMapper.shoppingCartItemsToShoppingCartResponse(shoppingCartItems);
-        logger.info("getShoppingCartResponse() - Shopping cart items were found");
-        return shoppingCartResponse;
-    }
 
     @Override
     public ShoppingCartItem getShoppingCartItemWithAdditivesById(Long id) {

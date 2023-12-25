@@ -10,4 +10,5 @@ public interface ShoppingCartService {
     ShoppingCartPriceResponse getShoppingCartPrice(String email);
     void resetShoppingCart(String email);
     void setShoppingCartLocation(Location location, String email);
+    ShoppingCartResponse getShoppingCartResponse(String email);
 }

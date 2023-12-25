@@ -40,7 +40,7 @@ public class ShoppingCartController {
 
     @Operation(summary = "Add product to shopping cart",description = "Adding product to shopping cart")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Product not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
@@ -52,7 +52,7 @@ public class ShoppingCartController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         shoppingCartItemService.createShoppingCartItem(productId,shoppingCartItemRequest);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     @Operation(summary = "Get shopping cart price",description = "Getting shopping cart price")
     @ApiResponses(value = {
@@ -77,7 +77,7 @@ public class ShoppingCartController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
-        ShoppingCartResponse shoppingCartResponse = shoppingCartItemService.getShoppingCartResponse(email);
+        ShoppingCartResponse shoppingCartResponse = shoppingCartService.getShoppingCartResponse(email);
         return new ResponseEntity<>(shoppingCartResponse, HttpStatus.OK);
     }
     @Operation(summary = "Delete shopping cart item by id",description = "Deleting shopping cart item by its id")
