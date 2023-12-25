@@ -22,7 +22,10 @@ import project.model.orderItemModel.OrderItemResponse;
 import project.model.orderModel.OrderResponse;
 import project.service.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @Tag(name = "Order")
 @SecurityRequirement(name = "Bearer Authentication")
 @RestController
@@ -48,7 +51,7 @@ public class OrderController {
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Failed validation",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/orders/new/withDelivery")
-    ResponseEntity<?> createOrderWithDelivery(@Valid @RequestBody DeliveryRequest deliveryRequest){
+    ResponseEntity<Map<String, Long>> createOrderWithDelivery(@Valid @RequestBody DeliveryRequest deliveryRequest){
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
@@ -63,7 +66,9 @@ public class OrderController {
         orderItemService.createOrderItems(shoppingCartItems,savedOrder);
         shoppingCartItemService.deleteShoppingCartItems(shoppingCartItems);
         shoppingCartService.resetShoppingCart(email);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        Map<String, Long> order = new HashMap<>(1);
+        order.put("orderId",savedOrder.getId());
+        return new ResponseEntity<>(order,HttpStatus.CREATED);
     }
 
     @Operation(summary = "Create order without delivery",description = "Creating order without delivery")
@@ -72,7 +77,7 @@ public class OrderController {
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/orders/new")
-    ResponseEntity<?> createOrder(){
+    ResponseEntity<Map<String, Long>> createOrder(){
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String email = userDetails.getUsername();
@@ -81,7 +86,9 @@ public class OrderController {
         orderItemService.createOrderItems(shoppingCartItems,savedOrder);
         shoppingCartItemService.deleteShoppingCartItemsByUserEmail(email);
         shoppingCartService.resetShoppingCart(email);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        Map<String, Long> order = new HashMap<>(1);
+        order.put("orderId",savedOrder.getId());
+        return new ResponseEntity<>(order,HttpStatus.CREATED);
     }
     @Operation(summary = "Get orders",description = "Get orders for order history")
     @ApiResponses(value = {
