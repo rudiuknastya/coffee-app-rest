@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     public Order reorder(Long id) {
         logger.info("reorder() - Reordering order");
         Order order = orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order wos not found by id "+id));
-        Order newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,order.getStatus(),orderRepository.findOrderSum(id));
+        Order newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,order.getStatus());
         Order savedOrder = orderRepository.save(newOrder);
         logger.info("reorder() - Order was reordered");
         return savedOrder;
@@ -93,16 +93,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order reorderWithDelivery(Long id, DeliveryRequest deliveryRequest) {
+        logger.info("reorderWithDelivery() - Reordering order with delivery");
         Order order = orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order wos not found by id "+id));
         Order newOrder;
         if(deliveryRequest.getCallBack()){
-            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.CALL,orderRepository.findOrderSum(id));
+            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.CALL);
         } else {
-            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.ORDERED,orderRepository.findOrderSum(id));
+            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.ORDERED);
         }
         Order savedOrder = orderRepository.save(newOrder);
         Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest,savedOrder);
         deliveryRepository.save(delivery);
+        logger.info("reorderWithDelivery() - Order was reordered with delivery");
         return savedOrder;
+    }
+
+    @Override
+    public void setReorderedOrderPrice(Order order) {
+        logger.info("setNewOrderPrice() - Setting price for reordered order");
+        order.setPrice(orderRepository.findOrderSum(order.getId()));
+        orderRepository.save(order);
+        logger.info("setNewOrderPrice() - Price was set for reordered order");
     }
 }
