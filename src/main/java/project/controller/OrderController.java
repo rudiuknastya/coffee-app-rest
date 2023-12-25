@@ -20,6 +20,7 @@ import project.model.PageableDTO;
 import project.model.deliveryModel.DeliveryRequest;
 import project.model.orderItemModel.OrderItemResponse;
 import project.model.orderModel.OrderResponse;
+import project.model.orderModel.ReorderResponse;
 import project.service.*;
 
 import java.util.HashMap;
@@ -117,7 +118,7 @@ public class OrderController {
     }
     @Operation(summary = "Get order for reordering", description = "Get order with new prices for reordering")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ReorderResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "Order not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Bad request",content = {@Content(mediaType = "application/json",schema = @Schema())})})
