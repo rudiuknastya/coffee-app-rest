@@ -23,9 +23,9 @@ public interface OrderMapper {
     @Mapping(target = "status", source = "orderStatus")
     @Mapping(target = "orderTime", expression = "java(getTimeNow())")
     @Mapping(target = "orderDate", expression = "java(getDateNow())")
+    @Mapping(target = "price", source = "orderPrice")
     @Mapping(ignore = true, target = "id")
-    @Mapping(ignore = true, target = "price")
-    Order orderToNewOrder(Order order, OrderStatus orderStatus);
+    Order orderToNewOrder(Order order, OrderStatus orderStatus, BigDecimal orderPrice);
 
     List<OrderResponse> orderListToOrderResponseList(List<Order> orders);
     @Mapping(target = "orderItemResponses", source = "orderItemResponseList")

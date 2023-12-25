@@ -167,6 +167,7 @@ public class OrderController {
 
         Order savedOrder = orderService.reorderWithDelivery(id,deliveryRequest);
         orderItemService.saveNewOrderItems(savedOrder);
+        orderService.setReorderedOrderPrice(savedOrder);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

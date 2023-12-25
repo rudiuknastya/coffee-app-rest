@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     public Order reorder(Long id) {
         logger.info("reorder() - Reordering order");
         Order order = orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order wos not found by id "+id));
-        Order newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,order.getStatus());
+        Order newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,order.getStatus(), BigDecimal.valueOf(0));
         Order savedOrder = orderRepository.save(newOrder);
         logger.info("reorder() - Order was reordered");
         return savedOrder;
@@ -97,9 +97,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order wos not found by id "+id));
         Order newOrder;
         if(deliveryRequest.getCallBack()){
-            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.CALL);
+            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.CALL,BigDecimal.valueOf(0));
         } else {
-            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.ORDERED);
+            newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.ORDERED,BigDecimal.valueOf(0));
         }
         Order savedOrder = orderRepository.save(newOrder);
         Delivery delivery = DeliveryMapper.DELIVERY_MAPPER.deliveryRequestToDelivery(deliveryRequest,savedOrder);
