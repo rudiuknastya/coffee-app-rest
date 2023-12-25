@@ -65,10 +65,10 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public void saveNewOrderItems(Order order) {
+    public void saveNewOrderItems(Order order, Long id) {
         logger.info("saveNewOrderItems() - Saving new order items");
-        List<OrderItem> orderItems = orderItemRepository.findWithAdditivesByOrderId(order.getId());
-        List<OrderItem> newOrderItems = new ArrayList<>(orderItems.size());
+        List<OrderItem> orderItems = orderItemRepository.findWithAdditivesByOrderId(id);
+        List<OrderItem> newOrderItems = new ArrayList<>();
         for(OrderItem orderItem: orderItems){
             BigDecimal newOrderItemPrice = new BigDecimal(0);
             newOrderItemPrice = newOrderItemPrice.add(orderItem.getProduct().getPrice());

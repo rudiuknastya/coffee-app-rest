@@ -146,7 +146,7 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Order savedOrder = orderService.reorder(id);
-        orderItemService.saveNewOrderItems(savedOrder);
+        orderItemService.saveNewOrderItems(savedOrder,id);
         orderService.setReorderedOrderPrice(savedOrder);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -166,7 +166,7 @@ public class OrderController {
         }
 
         Order savedOrder = orderService.reorderWithDelivery(id,deliveryRequest);
-        orderItemService.saveNewOrderItems(savedOrder);
+        orderItemService.saveNewOrderItems(savedOrder,id);
         orderService.setReorderedOrderPrice(savedOrder);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -12,6 +12,6 @@ import java.util.List;
 public interface OrderItemService {
     Page<OrderItemResponse> getOrderItemsByOrderId(Long orderId, PageableDTO pageableDTO);
     List<OrderItemResponse> getOrderItemResponsesForReorder(Long orderId);
-    void saveNewOrderItems(Order order);
+    void saveNewOrderItems(Order order,Long id);
     void createOrderItems(List<ShoppingCartItem> shoppingCartItems, Order order);
 }
