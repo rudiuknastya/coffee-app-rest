@@ -37,6 +37,7 @@ public interface OrderMapper {
     @Mapping(target = "orderTime", expression = "java(getTimeNow())")
     @Mapping(target = "orderDate", expression = "java(getDateNow())")
     @Mapping(target = "status", source = "orderStatus")
+    @Mapping(ignore = true, target = "id")
     Order shoppingCartToOrder(ShoppingCart shoppingCart, OrderStatus orderStatus);
     default LocalTime getTimeNow(){
         return LocalTime.now();
