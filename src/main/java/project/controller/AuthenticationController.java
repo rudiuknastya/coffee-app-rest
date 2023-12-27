@@ -75,19 +75,19 @@ public class AuthenticationController {
     }
     @Operation(summary = "Sending email to user to change password",description = "Request email and send password reset token to this email")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = PasswordResetTokenResponse.class))}),
             @ApiResponse(responseCode = "404", description = "User with such email not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Failed validation",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/forgotPassword")
     ResponseEntity<?> forgotPassword(HttpServletRequest httpRequest,@Valid @RequestBody EmailRequest emailRequest){
         String token = passwordResetTokenService.createOrUpdatePasswordResetToken(emailRequest);
-        return new ResponseEntity<>(mailService.sendToken(token,emailRequest.getEmail(),httpRequest),HttpStatus.OK);
+        mailService.sendToken(token,emailRequest.getEmail(),httpRequest);
+        return new ResponseEntity<>(new PasswordResetTokenResponse(token),HttpStatus.OK);
     }
     @Operation(summary = "Change password", description = "Set new password after user received email with password reset token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json")}),
-            @ApiResponse(responseCode = "400", description = "Failed password validation",content = {@Content(mediaType = "application/json",schema = @Schema())}),
-            @ApiResponse(responseCode = "401", description = "Password reset token expired",content = {@Content(mediaType = "application/json",schema = @Schema())})})
+            @ApiResponse(responseCode = "400", description = "Failed password validation or password reset token expired",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PostMapping("/changePassword")
     ResponseEntity<?> changePassword(@Parameter(name = "token", description = "Password reset token", example = "b8aa464c-7375-464e-9d8f-83cdae970921")
                                      @RequestParam("token") String token,
@@ -96,7 +96,7 @@ public class AuthenticationController {
             passwordResetTokenService.updatePassword(changePasswordRequest, token);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
