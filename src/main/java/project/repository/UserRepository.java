@@ -14,4 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findWithShoppingCartByEmail(@Param("email")String email);
     @Query(value = "SELECT u FROM User u LEFT JOIN FETCH u.passwordResetToken s WHERE u.email = :email")
     Optional<User> findWithPasswordResetTokenByEmail(@Param("email")String email);
+    @Query(value = "SELECT u FROM User u LEFT JOIN FETCH u.products s WHERE u.email = :email")
+    Optional<User> findWithProductsByEmail(@Param("email")String email);
+    @Query(value = "SELECT u FROM User u LEFT JOIN FETCH u.products s WHERE u.id = :id")
+    Optional<User> findWithProductsById(@Param("id")Long id);
 }

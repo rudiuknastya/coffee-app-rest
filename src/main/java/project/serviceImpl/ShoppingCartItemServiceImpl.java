@@ -56,6 +56,11 @@ public class ShoppingCartItemServiceImpl implements ShoppingCartItemService {
     @Override
     public void deleteShoppingCartItem(ShoppingCartItem shoppingCartItem) {
         logger.info("deleteShoppingCartItem() - Deleting shopping cart item");
+        if(shoppingCartItem.getPrice().compareTo(BigDecimal.valueOf(0)) == 0 ){
+            User user = userRepository.findWithProductsById(shoppingCartItem.getShoppingCart().getUser().getId()).orElseThrow(()-> new EntityNotFoundException("User not found by id "+shoppingCartItem.getShoppingCart().getUser().getId()));
+            user.getProducts().add(shoppingCartItem.getProduct());
+            userRepository.save(user);
+        }
         shoppingCartItemRepository.delete(shoppingCartItem);
         logger.info("deleteShoppingCartItem() - Shopping cart item was deleted");
     }

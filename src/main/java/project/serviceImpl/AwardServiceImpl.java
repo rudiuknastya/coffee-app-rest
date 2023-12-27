@@ -10,7 +10,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import project.entity.Product;
 import project.entity.ShoppingCart;
 import project.entity.ShoppingCartItem;
+import project.entity.User;
 import project.mapper.ProductMapper;
+import project.mapper.ShoppingCartItemMapper;
 import project.model.PageableDTO;
 import project.model.productModel.AwardDTO;
 import project.repository.ProductRepository;
@@ -27,11 +29,13 @@ public class AwardServiceImpl implements AwardService {
     private final ProductRepository productRepository;
     private final ShoppingCartItemRepository shoppingCartItemRepository;
     private final ShoppingCartRepository shoppingCartRepository;
+    private final UserRepository userRepository;
 
-    public AwardServiceImpl(ProductRepository productRepository, ShoppingCartItemRepository shoppingCartItemRepository, ShoppingCartRepository shoppingCartRepository) {
+    public AwardServiceImpl(ProductRepository productRepository, ShoppingCartItemRepository shoppingCartItemRepository, ShoppingCartRepository shoppingCartRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
         this.shoppingCartItemRepository = shoppingCartItemRepository;
         this.shoppingCartRepository = shoppingCartRepository;
+        this.userRepository = userRepository;
     }
 
     private Logger logger = LogManager.getLogger("serviceLogger");
@@ -59,13 +63,12 @@ public class AwardServiceImpl implements AwardService {
     public void addAwardToShoppingCart(String email, Long id) {
         logger.info("addAwardToShoppingCart() - Adding award to shopping cart");
         ShoppingCart shoppingCart = shoppingCartRepository.findByUserEmail(email);
-        ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
-        shoppingCartItem.setQuantity(1L);
-        shoppingCartItem.setPrice(BigDecimal.valueOf(0));
         Product product = productRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Product for award was not found by id "+id));
-        shoppingCartItem.setProduct(product);
-        shoppingCartItem.setShoppingCart(shoppingCart);
+        ShoppingCartItem shoppingCartItem = ShoppingCartItemMapper.SHOPPING_CART_ITEM_MAPPER.createShoppingCart(product,shoppingCart,BigDecimal.valueOf(0));
         shoppingCartItemRepository.save(shoppingCartItem);
+        User user = userRepository.findWithProductsByEmail(email).orElseThrow(()-> new EntityNotFoundException("User was not found by email "+email));
+        user.getProducts().remove(product);
+        userRepository.save(user);
         logger.info("addAwardToShoppingCart() - Award was added to shopping cart");
     }
 }
