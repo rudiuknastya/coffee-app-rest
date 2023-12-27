@@ -10,6 +10,6 @@ public interface UserService {
     User getUserById(Long id);
     User getUserWithShoppingCartByEmail(String email);
     User getUserWithPasswordResetTokenByEmail(String email);
-    void updateUser(UserProfileRequest userProfileRequest);
+    UserResponse updateUser(UserProfileRequest userProfileRequest);
 
 }

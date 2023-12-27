@@ -67,14 +67,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(UserProfileRequest userProfileRequest) {
+    public UserResponse updateUser(UserProfileRequest userProfileRequest) {
         logger.info("updateUser() - Updating user");
         User user = userRepository.findById(userProfileRequest.getId()).orElseThrow(()->new EntityNotFoundException("User not found by id "+userProfileRequest.getId()));
         UserMapper.USER_MAPPER.setUserRequest(user,userProfileRequest);
         if(!userProfileRequest.getOldPassword().equals("") && !userProfileRequest.getNewPassword().equals("") && !userProfileRequest.getConfirmNewPassword().equals("")){
             user.setPassword(passwordEncoder.encode(userProfileRequest.getNewPassword()));
         }
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        UserResponse userResponse =  UserMapper.USER_MAPPER.userToUserResponse(savedUser);
         logger.info("updateUser() - User was updated");
+        return userResponse;
     }
 }

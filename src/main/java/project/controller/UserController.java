@@ -62,14 +62,14 @@ public class UserController {
     }
     @Operation(summary = "Update profile",description = "Updating user profile")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema())}),
+            @ApiResponse(responseCode = "200", description = "OK",content = {@Content(mediaType = "application/json",schema = @Schema(implementation = UserResponse.class))}),
             @ApiResponse(responseCode = "401", description = "User unauthorized",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "404", description = "User not found",content = {@Content(mediaType = "application/json",schema = @Schema())}),
             @ApiResponse(responseCode = "400", description = "Failed validation",content = {@Content(mediaType = "application/json",schema = @Schema())})})
     @PutMapping("/profile")
     ResponseEntity<?> updateUserProfile(@Valid @RequestBody UserProfileRequest userProfileRequest){
-        userService.updateUser(userProfileRequest);
-        return new ResponseEntity<>(HttpStatus.OK);
+        UserResponse userResponse = userService.updateUser(userProfileRequest);
+        return new ResponseEntity<>(userResponse,HttpStatus.OK);
     }
 
 }
