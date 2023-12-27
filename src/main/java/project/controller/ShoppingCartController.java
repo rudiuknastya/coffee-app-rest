@@ -128,7 +128,7 @@ public class ShoppingCartController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         ShoppingCartItem shoppingCartItem = shoppingCartItemService.updateShoppingCartItem(id,quantity);
-        ShoppingCartItemQuantityResponse response = new ShoppingCartItemQuantityResponse(id,quantity,shoppingCartItem.getPrice(),shoppingCartItem.getShoppingCart().getPrice());
+        ShoppingCartItemQuantityResponse response = new ShoppingCartItemQuantityResponse(shoppingCartItem.getId(),shoppingCartItem.getQuantity(),shoppingCartItem.getPrice(),shoppingCartItem.getShoppingCart().getPrice());
         return new ResponseEntity<>(response,HttpStatus.OK);
 
     }

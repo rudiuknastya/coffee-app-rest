@@ -14,7 +14,7 @@ public class Delivery {
     private Long id;
     @Column(nullable = false)
     private String name;
-    @Column(name = "phone_number", columnDefinition="VARCHAR(20) NOT NULL UNIQUE")
+    @Column(name = "phone_number", columnDefinition="VARCHAR(20) NOT NULL")
     private String phoneNumber;
     @Column(nullable = false)
     private String city;
