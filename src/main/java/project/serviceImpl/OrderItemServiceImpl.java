@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static project.specification.OrderItemSpecification.*;
+
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
     private final OrderItemRepository orderItemRepository;
@@ -30,35 +31,37 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public Page<OrderItemResponse> getOrderItemsByOrderId(Long orderId, PageableDTO pageableDTO) {
-        logger.info("getOrderItemsByOrderId() - Finding order items for order item responses for page "+pageableDTO.getPage());
+        logger.info("getOrderItemsByOrderId() - Finding order items for order item responses for page " + pageableDTO.getPage());
         Pageable pageable;
         Sort sort;
-        if(pageableDTO.getSortDirection().equals("DESC")){
+        if (pageableDTO.getSortDirection().equals("DESC")) {
             sort = Sort.by(pageableDTO.getSortField()).descending();
-        }
-        else{
+        } else {
             sort = Sort.by(pageableDTO.getSortField()).ascending();
         }
-        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(),sort);
+        pageable = PageRequest.of(pageableDTO.getPage(), pageableDTO.getSize(), sort);
         Page<OrderItem> orderItems = orderItemRepository.findAll(byOrderId(orderId), pageable);
         List<OrderItemResponse> orderItemResponses = OrderItemMapper.ORDER_ITEM_MAPPER.orderItemListToOrderItemResponseList(orderItems.getContent());
-        Page<OrderItemResponse> orderItemResponsePage = new PageImpl<>(orderItemResponses,pageable,orderItems.getTotalElements());
+        Page<OrderItemResponse> orderItemResponsePage = new PageImpl<>(orderItemResponses, pageable, orderItems.getTotalElements());
         logger.info("getOrderItemsByOrderId() - Order items for order item responses were found");
         return orderItemResponsePage;
     }
 
     @Override
     public List<OrderItemResponse> getOrderItemResponsesForReorder(Long orderId) {
-        logger.info("getOrderItemResponsesForReorder() - Finding order items with additives by order id "+orderId +" and mapping them to order itm response");
+        logger.info("getOrderItemResponsesForReorder() - Finding order items with additives by order id " + orderId + " and mapping them to order item response");
         List<OrderItem> orderItems = orderItemRepository.findWithAdditivesByOrderId(orderId);
         List<OrderItemResponse> orderItemResponses = new ArrayList<>(orderItems.size());
         for (OrderItem orderItem : orderItems) {
-            BigDecimal newOrderItemPrice = new BigDecimal(0);
-            newOrderItemPrice = newOrderItemPrice.add(orderItem.getProduct().getPrice());
-            newOrderItemPrice = newOrderItemPrice.add(orderItemRepository.findOrderItemAdditivesSum(orderItem.getId()));
-            newOrderItemPrice = newOrderItemPrice.multiply(BigDecimal.valueOf(orderItem.getQuantity()));
-            OrderItemResponse orderItemResponse = OrderItemMapper.ORDER_ITEM_MAPPER.oldOrderItemToOrderItemResponse(orderItem,newOrderItemPrice);
-            orderItemResponses.add(orderItemResponse);
+            if (orderItem.getPrice().compareTo(BigDecimal.valueOf(0)) != 0) {
+                BigDecimal newOrderItemPrice = new BigDecimal(0);
+                newOrderItemPrice = newOrderItemPrice.add(orderItem.getProduct().getPrice());
+                BigDecimal orderItemAdditivesSum = orderItemRepository.findOrderItemAdditivesSum(orderItem.getId());
+                newOrderItemPrice = newOrderItemPrice.add(orderItemAdditivesSum);
+                newOrderItemPrice = newOrderItemPrice.multiply(BigDecimal.valueOf(orderItem.getQuantity()));
+                OrderItemResponse orderItemResponse = OrderItemMapper.ORDER_ITEM_MAPPER.oldOrderItemToOrderItemResponse(orderItem, newOrderItemPrice);
+                orderItemResponses.add(orderItemResponse);
+            }
         }
         logger.info("getOrderItemResponsesForReorder() - Order items with additives for order item responses were found and mapped");
         return orderItemResponses;
@@ -69,13 +72,15 @@ public class OrderItemServiceImpl implements OrderItemService {
         logger.info("saveNewOrderItems() - Saving new order items");
         List<OrderItem> orderItems = orderItemRepository.findWithAdditivesByOrderId(id);
         List<OrderItem> newOrderItems = new ArrayList<>();
-        for(OrderItem orderItem: orderItems){
-            BigDecimal newOrderItemPrice = new BigDecimal(0);
-            newOrderItemPrice = newOrderItemPrice.add(orderItem.getProduct().getPrice());
-            newOrderItemPrice = newOrderItemPrice.add(orderItemRepository.findOrderItemAdditivesSum(orderItem.getId()));
-            newOrderItemPrice = newOrderItemPrice.multiply(BigDecimal.valueOf(orderItem.getQuantity()));
-            OrderItem newOrderItem = OrderItemMapper.ORDER_ITEM_MAPPER.orderItemToNewOrderItem(orderItem, newOrderItemPrice, order);
-            newOrderItems.add(newOrderItem);
+        for (OrderItem orderItem : orderItems) {
+            if (orderItem.getPrice().compareTo(BigDecimal.valueOf(0)) != 0) {
+                BigDecimal newOrderItemPrice = new BigDecimal(0);
+                newOrderItemPrice = newOrderItemPrice.add(orderItem.getProduct().getPrice());
+                newOrderItemPrice = newOrderItemPrice.add(orderItemRepository.findOrderItemAdditivesSum(orderItem.getId()));
+                newOrderItemPrice = newOrderItemPrice.multiply(BigDecimal.valueOf(orderItem.getQuantity()));
+                OrderItem newOrderItem = OrderItemMapper.ORDER_ITEM_MAPPER.orderItemToNewOrderItem(orderItem, newOrderItemPrice, order);
+                newOrderItems.add(newOrderItem);
+            }
         }
         orderItemRepository.saveAll(newOrderItems);
         logger.info("saveNewOrderItems() - New order items were saved");
@@ -84,7 +89,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public void createOrderItems(List<ShoppingCartItem> shoppingCartItems, Order order) {
         logger.info("createOrderItems() - Creating order items");
-        List<OrderItem> orderItems = OrderItemMapper.ORDER_ITEM_MAPPER.shoppingCartItemListToOrderItemList(shoppingCartItems,order);
+        List<OrderItem> orderItems = OrderItemMapper.ORDER_ITEM_MAPPER.shoppingCartItemListToOrderItemList(shoppingCartItems, order);
         orderItemRepository.saveAll(orderItems);
         logger.info("createOrderItems() - Order items were created");
     }

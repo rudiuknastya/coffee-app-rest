@@ -76,6 +76,9 @@ public class OrderServiceImpl implements OrderService {
     public ReorderResponse createReorderResponse(Long id, List<OrderItemResponse> orderItemResponses) {
         logger.info("createReorderResponse() - Creating reorder response");
         Order order = orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order was not found by id "+id));
+        if(order.getPrice().compareTo(BigDecimal.valueOf(0)) == 0){
+            return null;
+        }
         ReorderResponse reorderResponse = OrderMapper.ORDER_MAPPER.orderToReorderResponse(order,orderItemResponses,orderRepository.findOrderSum(order.getId()));
         logger.info("createReorderResponse() - Reorder response was created");
         return reorderResponse;
@@ -85,6 +88,9 @@ public class OrderServiceImpl implements OrderService {
     public Order reorder(Long id) {
         logger.info("reorder() - Reordering order");
         Order order = orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order wos not found by id "+id));
+        if(order.getPrice().compareTo(BigDecimal.valueOf(0)) == 0){
+            return null;
+        }
         Order newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,order.getStatus(), BigDecimal.valueOf(0));
         Order savedOrder = orderRepository.save(newOrder);
         logger.info("reorder() - Order was reordered");
@@ -95,6 +101,9 @@ public class OrderServiceImpl implements OrderService {
     public Order reorderWithDelivery(Long id, DeliveryRequest deliveryRequest) {
         logger.info("reorderWithDelivery() - Reordering order with delivery");
         Order order = orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order wos not found by id "+id));
+        if(order.getPrice().compareTo(BigDecimal.valueOf(0)) == 0){
+            return null;
+        }
         Order newOrder;
         if(deliveryRequest.getCallBack()){
             newOrder = OrderMapper.ORDER_MAPPER.orderToNewOrder(order,OrderStatus.CALL,BigDecimal.valueOf(0));
